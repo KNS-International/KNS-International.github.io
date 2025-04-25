@@ -1,0 +1,14 @@
+
+    
+    
+    
+    create table "KNSDevDbt"."tlawson"."brands" ("BrandId" int,"Brand" varchar(16),"OrderIndex" int)
+  ;
+    -- dbt seed --
+    
+          insert into "KNSDevDbt"."tlawson"."brands" ("BrandId", "Brand", "OrderIndex") values
+          (?,?,?),(?,?,?),(?,?,?),(?,?,?),(?,?,?)
+      
+
+;
+  
