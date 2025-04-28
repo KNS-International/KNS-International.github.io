@@ -1,0 +1,12 @@
+
+    
+    
+    truncate table "KNSDevDbt"."prod"."seed_Brands";
+    -- dbt seed --
+    
+          insert into "KNSDevDbt"."prod"."seed_Brands" ("BrandId", "Brand", "OrderIndex") values
+          (?,?,?),(?,?,?),(?,?,?),(?,?,?),(?,?,?)
+      
+
+;
+  
