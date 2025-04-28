@@ -1,7 +1,7 @@
 with
 
 sources as (
-    select * from "KNSDevDbt"."dbt_tlawson_intermediate"."int_marketing__SourcesUnioned"
+    select * from "KNSDevDbt"."dbt_prod_intermediate"."int_marketing__SourcesUnioned"
 ),
 
 -- THIS IS WHERE WE WILL JOIN THE MAPPING TABLE AND FILL IN EMPTY VALUES

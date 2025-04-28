@@ -1,24 +1,24 @@
 with 
 
 brand as (
-    select * from "KNSDevDbt"."tlawson"."seed_Brands"
+    select * from "KNSDevDbt"."prod"."seed_Brands"
 ),
 
 historical as (
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_kns__HistoricalDimItem"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_kns__HistoricalDimItem"
 ),
 
 item as (
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__Item"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Item"
 ),
 
 item_cogs as (
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_netsuite__KnsItemCogs"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__KnsItemCogs"
 ),
 
 product as (
 
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_salsify__Product"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_salsify__Product"
 
 ),
 

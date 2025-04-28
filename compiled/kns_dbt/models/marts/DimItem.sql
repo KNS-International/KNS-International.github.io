@@ -1,19 +1,19 @@
 with
 
 dim_item as (
-    select * from "KNSDevDbt"."dbt_tlawson_intermediate"."int_sales__DimItemPrep"
+    select * from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__DimItemPrep"
 ),
 
 product as (
 
-    select MainSku from "KNSDevDbt"."dbt_tlawson_staging"."stg_salsify__Product"
+    select MainSku from "KNSDevDbt"."dbt_prod_staging"."stg_salsify__Product"
 
 ),
 
 size_run as (
     select 
         * 
-    from "KNSDevDbt"."tlawson"."seed_SizeRun"
+    from "KNSDevDbt"."prod"."seed_SizeRun"
     where Code in ('M-Standard-1','F-Standard-1','U-Generic-1')
 ),
 
@@ -21,7 +21,7 @@ current_stock as (
     select 
         ItemId,
         AvailableQuantity
-    from "KNSDevDbt"."dbt_tlawson_intermediate"."int_sales__CurrentStock"
+    from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__CurrentStock"
 ),
 
 temp_line as (

@@ -10,22 +10,22 @@
     
     USE [KNSDevDbt];
     EXEC('
-        create view "dbt_tlawson_marts"."DimItem__dbt_tmp__dbt_tmp_vw" as with
+        create view "dbt_prod_marts"."DimItem__dbt_tmp__dbt_tmp_vw" as with
 
 dim_item as (
-    select * from "KNSDevDbt"."dbt_tlawson_intermediate"."int_sales__DimItemPrep"
+    select * from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__DimItemPrep"
 ),
 
 product as (
 
-    select MainSku from "KNSDevDbt"."dbt_tlawson_staging"."stg_salsify__Product"
+    select MainSku from "KNSDevDbt"."dbt_prod_staging"."stg_salsify__Product"
 
 ),
 
 size_run as (
     select 
         * 
-    from "KNSDevDbt"."tlawson"."seed_SizeRun"
+    from "KNSDevDbt"."prod"."seed_SizeRun"
     where Code in (''M-Standard-1'',''F-Standard-1'',''U-Generic-1'')
 ),
 
@@ -33,7 +33,7 @@ current_stock as (
     select 
         ItemId,
         AvailableQuantity
-    from "KNSDevDbt"."dbt_tlawson_intermediate"."int_sales__CurrentStock"
+    from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__CurrentStock"
 ),
 
 temp_line as (
@@ -85,13 +85,13 @@ select * from final;
     ')
 
 EXEC('
-            SELECT * INTO "KNSDevDbt"."dbt_tlawson_marts"."DimItem__dbt_tmp" FROM "KNSDevDbt"."dbt_tlawson_marts"."DimItem__dbt_tmp__dbt_tmp_vw" 
+            SELECT * INTO "KNSDevDbt"."dbt_prod_marts"."DimItem__dbt_tmp" FROM "KNSDevDbt"."dbt_prod_marts"."DimItem__dbt_tmp__dbt_tmp_vw" 
     OPTION (LABEL = ''dbt-sqlserver'');
 
         ')
 
     
-    EXEC('DROP VIEW IF EXISTS dbt_tlawson_marts.DimItem__dbt_tmp__dbt_tmp_vw')
+    EXEC('DROP VIEW IF EXISTS dbt_prod_marts.DimItem__dbt_tmp__dbt_tmp_vw')
 
 
 
@@ -100,12 +100,12 @@ EXEC('
     if EXISTS (
         SELECT *
         FROM sys.indexes with (nolock)
-        WHERE name = 'dbt_tlawson_marts_DimItem__dbt_tmp_cci'
-        AND object_id=object_id('dbt_tlawson_marts_DimItem__dbt_tmp')
+        WHERE name = 'dbt_prod_marts_DimItem__dbt_tmp_cci'
+        AND object_id=object_id('dbt_prod_marts_DimItem__dbt_tmp')
     )
-    DROP index "dbt_tlawson_marts"."DimItem__dbt_tmp".dbt_tlawson_marts_DimItem__dbt_tmp_cci
-    CREATE CLUSTERED COLUMNSTORE INDEX dbt_tlawson_marts_DimItem__dbt_tmp_cci
-    ON "dbt_tlawson_marts"."DimItem__dbt_tmp"
+    DROP index "dbt_prod_marts"."DimItem__dbt_tmp".dbt_prod_marts_DimItem__dbt_tmp_cci
+    CREATE CLUSTERED COLUMNSTORE INDEX dbt_prod_marts_DimItem__dbt_tmp_cci
+    ON "dbt_prod_marts"."DimItem__dbt_tmp"
 
    
 

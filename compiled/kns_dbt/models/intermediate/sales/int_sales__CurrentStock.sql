@@ -8,27 +8,27 @@ day_start as (
 ),
 
 order_header as (
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderHeader"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader"
 ),
 
 order_line as (
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderLine"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine"
 ),
 
 pack as (
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__Pack"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Pack"
 ),
 
 stock_unit as (
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__StockUnit"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__StockUnit"
 ),
 
 stock_unit_audit_history as (
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__StockUnitAuditHistory"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__StockUnitAuditHistory"
 ),
 
 item as (
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__Item"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Item"
 ),
 
 ordered as (

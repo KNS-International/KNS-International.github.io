@@ -18,8 +18,8 @@ criteo as (
         ctr * impressions as Conversions,
         attributedSales as SalesDollars,
         attributedUnits as SalesUnits
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_marketing__Criteo" c
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__TradingPartner" tp
+    from "KNSDevDbt"."dbt_prod_staging"."stg_marketing__Criteo" c
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner" tp
         on c.retailerName = tp.Name
     where Spend > 0
 
@@ -44,7 +44,7 @@ northbeam as (
         ctr * imprs as Conversions,
         attributed_rev as SalesDollars,
         null as SalesUnits
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_marketing__Northbeam" 
+    from "KNSDevDbt"."dbt_prod_staging"."stg_marketing__Northbeam" 
     where attribution_model = 'Clicks and views'
         and attribution_window = '7'
 ),
@@ -66,7 +66,7 @@ promoteiq as (
         CTR * Impressions as Conversions,
         [Total Sales] as SalesDollars,
         [Units Sold] as SalesUnits
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_marketing__PromoteIq" p
+    from "KNSDevDbt"."dbt_prod_staging"."stg_marketing__PromoteIq" p
     where ([Vendor Name] like '%JOURNEE%' or [Vendor Name] like '%VANCE%')
         and p.[Campaign Name] is not null
 ),
@@ -88,7 +88,7 @@ symbiosys as (
         null as Conversions,
         Sales as SalesDollars,
         [Units Sold] as SalesUnits
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_marketing__Symbiosys"
+    from "KNSDevDbt"."dbt_prod_staging"."stg_marketing__Symbiosys"
 ),
 
 coop_campaign as (
@@ -104,7 +104,7 @@ coop_campaign as (
         null as Brand,
         Spend / (
             select count(*) 
-            from "KNSDevDbt"."dbt_tlawson_staging"."stg_dbo__Calendar" cal2 
+            from "KNSDevDbt"."dbt_prod_staging"."stg_dbo__Calendar" cal2 
             where cal2.Date >= co.StartAt and cal2.Date <= co.EndAt
         ) as Spend,
         null as ClickThrough,
@@ -112,8 +112,8 @@ coop_campaign as (
         null as Conversions,
         null as SalesDollars,
         null as SalesUnits
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_marketing__CoOpCampaign" co
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_dbo__Calendar" cal
+    from "KNSDevDbt"."dbt_prod_staging"."stg_marketing__CoOpCampaign" co
+    join "KNSDevDbt"."dbt_prod_staging"."stg_dbo__Calendar" cal
         on cal.Date >= co.StartAt and cal.Date <= co.EndAt
 ),
 
@@ -135,7 +135,7 @@ roundel as (
         clicks as Conversions,
         attributedSales as SalesDollars,
         attributedUnits as SalesUnits
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_marketing__Roundel"
+    from "KNSDevDbt"."dbt_prod_staging"."stg_marketing__Roundel"
 
 ),
 

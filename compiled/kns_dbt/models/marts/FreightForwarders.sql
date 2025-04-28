@@ -9,7 +9,7 @@ air_and_sea as (
         min([EstimatedUSPortAt]) as EstimatedUSPortAt,
         min([EstimatedUSStartShipAt]) as EstimatedUSStartShipAt,
         min([EstimatedArrivalAt]) as EstimatedArrivalAt
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_kns__FreightForwarder_AirAndSea"
+    from "KNSDevDbt"."dbt_prod_staging"."stg_kns__FreightForwarder_AirAndSea"
     where Number != ''
         and Number is not null
     group by Number, FreightForwarder
@@ -17,19 +17,19 @@ air_and_sea as (
 
 dsv as (
 
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_kns__FreightForwarder_DSV"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_kns__FreightForwarder_DSV"
 
 ),
 
 sfi as (
 
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_kns__FreightForwarder_SFI"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_kns__FreightForwarder_SFI"
 
 ),
 
 po_master_file as (
 
-    select * from "KNSDevDbt"."dbt_tlawson_staging"."stg_kns__FreightForwarder_POMasterFile"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_kns__FreightForwarder_POMasterFile"
     group by [Number], FreightForwarder, VesselLoadedAt, EstimatedUSPortAt, EstimatedUSStartShipAt, EstimatedArrivalAt
 
 ),

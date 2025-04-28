@@ -8,7 +8,7 @@ params as (
 
 returns_temp as (
 
-    select * from "KNSDevDbt"."dbt_tlawson_intermediate"."int_sales__ReturnRatePrep"
+    select * from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__ReturnRatePrep"
 
 ),
 

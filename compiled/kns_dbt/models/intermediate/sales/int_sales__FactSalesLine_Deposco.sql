@@ -11,10 +11,10 @@ orders_to_pull as (
 
     select
         oh.OrderHeaderId
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderHeader" as oh
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderLine" as ol
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" as oh
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" as ol
         on oh.OrderHeaderId = ol.OrderHeaderId
-    left join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__CoLine" as cl
+    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__CoLine" as cl
         on ol.CoLineId = cl.CoLineId
     
     cross join params
@@ -52,13 +52,13 @@ order_line_list as (
         coalesce(ol.OrderPackQuantity * tp.TaxRate, 0) as HandlingFee,
         null as Season
     from orders_to_pull q
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderHeader" oh 
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh 
       on oh.OrderHeaderId = q.OrderHeaderId
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderLine" ol 
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol 
       on ol.OrderHeaderId = oh.OrderHeaderId
-    left join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__CoLine" cl 
+    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__CoLine" cl 
       on cl.CoLineId = ol.CoLineId
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__TradingPartner" tp 
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner" tp 
       on tp.TradingPartnerId = oh.ConsigneePartnerId
     where oh.Type = 'Sales Order'
       and (oh.OrderSource is null or oh.OrderSource not in (
@@ -100,11 +100,11 @@ deduped_ranked as (
             else 1
         end as shipping_protection_row
     from filtered f
-    left join "KNSDevDbt"."dbt_tlawson_marts"."DimItem" di 
+    left join "KNSDevDbt"."dbt_prod_marts"."DimItem" di 
         on di.ItemId = f.ItemId
-    left join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderLine" ol 
+    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol 
         on ol.OrderLineId = cast(replace(f.Number, 'Deposco/', '') as int)
-    left join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderHeader" oh 
+    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh 
         on oh.OrderHeaderId = ol.OrderHeaderId
 ),
 
@@ -121,11 +121,11 @@ update_order_protection as (
         fs.Number,
         oh.CoHeaderId as ChId
     from deduped fs
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__Item" i 
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Item" i 
         on i.ItemId = fs.ItemId
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderLine" ol 
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol 
         on ol.OrderLineId = cast(replace(fs.Number, 'Deposco/', '') as int)
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderHeader" oh 
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh 
         on oh.OrderHeaderId = ol.OrderHeaderId
     where i.Name = 'Order Protection'
         and coalesce(i.ClassType, '') = ''
@@ -138,13 +138,13 @@ ch_ids as (
         oh.CoHeaderId as ChId,
         di.BrandId
     from deduped fs
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderLine" ol 
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol 
         on ol.OrderLineId = cast(replace(fs.Number, 'Deposco/', '') as int)
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderHeader" oh 
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh 
         on oh.OrderHeaderId = ol.OrderHeaderId
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__Item" i 
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Item" i 
         on i.ItemId = fs.ItemId
-    join "KNSDevDbt"."dbt_tlawson_marts"."DimItem" di 
+    join "KNSDevDbt"."dbt_prod_marts"."DimItem" di 
         on di.ItemId = i.ItemId
     where fs.Number like 'Deposco/%'
         and coalesce(i.Name, '') != 'Order Protection'
@@ -164,7 +164,7 @@ shipping_protection as (
     select 
         i.ItemId,
         i.BrandId
-    from "KNSDevDbt"."dbt_tlawson_marts"."DimItem" i
+    from "KNSDevDbt"."dbt_prod_marts"."DimItem" i
     where i.Parent = 'Shipping Protection'
 ),
 

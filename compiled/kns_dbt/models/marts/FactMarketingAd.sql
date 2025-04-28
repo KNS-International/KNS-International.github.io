@@ -1,12 +1,12 @@
 with 
 
 brands as (
-    select * from "KNSDevDbt"."tlawson"."seed_Brands"
+    select * from "KNSDevDbt"."prod"."seed_Brands"
 ),
 
 marketing_data as (
 
-    select * from "KNSDevDbt"."dbt_tlawson_intermediate"."int_marketing__SourcesMapped"
+    select * from "KNSDevDbt"."dbt_prod_intermediate"."int_marketing__SourcesMapped"
 
 ),
 

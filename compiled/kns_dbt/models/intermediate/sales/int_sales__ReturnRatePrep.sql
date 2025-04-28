@@ -11,7 +11,7 @@ accepted_tp as (
         Code,
         TradingPartnerId,
         Name
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__TradingPartner"
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner"
     where ContactEmail = 'TRUE'
         and Name != 'MARKETING'
 
@@ -32,16 +32,16 @@ customer_blind_returns as (
         rl.ReceivedPackQuantity as ReturnQuantity,
         datediff(day,
                 cast((select poh.CreatedDate
-                    from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderHeader" poh
+                    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" poh
                     where oh.ParentOrderId = poh.OrderHeaderId) as date),
                 cast(oh.CreatedDate as date)
         ) as ReturnDays
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__ReceiptLine" rl
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderLine" ol 
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__ReceiptLine" rl
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol 
         on rl.OrderLineId = ol.OrderLineId
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderHeader" oh
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh
         on ol.OrderHeaderId = oh.OrderHeaderId
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__Item" i
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Item" i
         on ol.ItemId = i.ItemId
     cross join params
     where oh.Type in ('Blind RMA', 'Customer Return')
@@ -67,10 +67,10 @@ sales_order_returns as (
         OrderPackQuantity as PurchasedQuantity,
         null as ReturnedQuantity,
         null as ReturnDays
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderHeader" oh
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__OrderLine" ol 
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol 
         on oh.OrderHeaderId = ol.OrderHeaderId
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__Item" i
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Item" i
         on ol.ItemId = i.ItemId
     cross join params
     where oh.Type = 'Sales Order'

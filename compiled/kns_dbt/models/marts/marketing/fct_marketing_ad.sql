@@ -1,1 +1,0 @@
-select * from "KNSDevDbt"."dbt_tlawson_intermediate"."int_sources_unioned";

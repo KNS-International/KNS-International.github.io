@@ -7,7 +7,7 @@ trading_partners as (
         Name,
         Code,
         BillToCountry as ChannelType
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__TradingPartner"
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner"
 
 ),
 

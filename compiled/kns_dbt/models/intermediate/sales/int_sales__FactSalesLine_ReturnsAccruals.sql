@@ -25,12 +25,12 @@ source as (
         0 as DiscountAmount,
         getdate() as RecordUpdatedAt,
         null as Season
-    from "KNSDevDbt"."dbt_tlawson_staging"."stg_netsuite__TransactionLine" tl
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_netsuite__Transaction" t
+    from "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__TransactionLine" tl
+    join "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__Transaction" t
         on tl.[Transaction] = t.Id
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_netsuite__Entity" e
+    join "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__Entity" e
         on t.Entity = e.Id
-    join "KNSDevDbt"."dbt_tlawson_staging"."stg_deposco__TradingPartner" tp
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner" tp
         on e.EntityId = tp.Name
     where tl.Memo = 'Returns Accrual'
         and tl.ExpenseAccount=214
