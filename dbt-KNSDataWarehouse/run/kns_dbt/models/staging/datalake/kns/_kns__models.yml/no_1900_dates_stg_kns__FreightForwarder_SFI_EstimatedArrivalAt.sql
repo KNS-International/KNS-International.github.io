@@ -6,18 +6,11 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_64b19a2ad1575b028f424239b0ed7275]
+    [dbt_test__audit.testview_c76f204f482411c1da88e49187e05c18]
    as 
-    
-    
-
-
-
-select TradingPartnerId
-from "KNSDevDbt"."dbt_prod_marts"."FactMarketingAd"
-where TradingPartnerId is null
-
-
+    select *
+    from "KNSDevDbt"."dbt_prod_staging"."stg_kns__FreightForwarder_SFI"
+    where EstimatedArrivalAt = ''1900-01-01''
 ;')
   select
     count(*) as failures,
@@ -28,12 +21,12 @@ where TradingPartnerId is null
   from (
     select  * from 
 
-    [dbt_test__audit.testview_64b19a2ad1575b028f424239b0ed7275]
+    [dbt_test__audit.testview_c76f204f482411c1da88e49187e05c18]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_64b19a2ad1575b028f424239b0ed7275]
+    [dbt_test__audit.testview_c76f204f482411c1da88e49187e05c18]
   ;')

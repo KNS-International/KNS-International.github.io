@@ -1,10 +1,4 @@
-with 
-
-brand as (
-    select * from "KNSDevDbt"."prod"."seed_Brands"
-),
-
-historical as (
+with historical as (
     select * from "KNSDevDbt"."dbt_prod_staging"."stg_kns__HistoricalDimItem"
 ),
 
@@ -16,10 +10,68 @@ item_cogs as (
     select * from "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__KnsItemCogs"
 ),
 
+variants as (
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Variant"
+),
+
+styles as (
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Style"
+),
+
+brands as (
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Brand"
+),
+
+subclasses as (
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Subclass"
+),
+
+catalog as (
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Catalog"
+),
+
 product as (
-
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_salsify__Product"
-
+    select
+        v.Number,
+        v.Status,
+        v.ShoeWidth,
+        v.CalfWidth,
+        v.Parent,
+        v.ClosureType,
+        v.HeelType,
+        v.StyleType,
+        v.SizeRun,
+        v.ColorName as Color,
+        v.ColorClass,
+        v.IsAnaplanActive as Anaplan,
+        month(v.SellOutTargetAt) as SellOutTargetDateMonth,
+        year(v.SellOutTargetAt) as SellOutTargetDateYear,
+        v.PlannedArrivalAt as PlannedArrivalDateMonth,
+        v.FirstSalesDateAt as FirstSalesDate,
+        v.MSRP,
+        v.IsSupplies,
+        v.IsIntangible,
+        v.DirectSourcingModel,
+        v.SellingStatus,
+        s.Name as Style,
+        c.Name as Category,
+        c.BrandId,
+        sc.Name as Subclass,
+        sc.Class,
+        s.Vendor,
+        s.VendorSku,
+        s.Gender,
+        s.Season,
+        s.CaseQuantity,
+        s.SeasonBudget,
+        null as Size,
+        b.Name as Brand,
+        b.Division
+    from variants v
+    left join styles s on v.StyleId = s.StyleId
+    left join subclasses sc on s.SubclassId = sc.SubclassId
+    left join catalog c on s.CatalogId = c.CatalogId
+    left join brands b on c.BrandId = b.BrandId
 ),
 
 final as (
@@ -29,19 +81,19 @@ final as (
         i.[Number],
         h.Category,
         h.Subcategory,
-        coalesce(nullif(p.Brand, ''), '*No Vendor*') as Catalog,
+        coalesce(nullif(p.Brand, ''), '*No Catalog*') as Catalog,
         coalesce(nullif(p.Vendor, ''), '*No Vendor*') as Vendor,
         coalesce(nullif(p.Gender, ''), '*No Gender*') as Gender,
         case
             when i.[Number] in ('Order Protection', 'Navidium Shipping Protection') then 'Shipping Protection'
-            else coalesce(nullif(p.ParentSku , ''), '*No Parent*')
+            else coalesce(nullif(p.Parent , ''), '*No Parent*')
         end as Parent,
         coalesce(nullif(p.Color, ''), '*No Color*') as Color,
-        coalesce(nullif(p.Seasonality, ''), '*No Season*') as Season,
+        coalesce(nullif(p.Season, ''), '*No Season*') as Season,
         coalesce(nullif(p.Size, ''), '*No Size*') as Size,
         i.UpdatedDate as UpdatedAt,
         h.FirstReceivedDate,
-        try_convert(int, nullif(year(try_convert(date, p.FirstSalesDate)), '')) as IntroductionYear,
+        year(p.FirstSalesDate) as IntroductionYear,
         h.CloseOut,
         h.CloseOutDate,
         h.ToeStyle,
@@ -51,39 +103,35 @@ final as (
         p.SizeRun,
         h.LiquidationCloseOut,
         p.CaseQuantity,
-        p.AnaplanActive as Anaplan,
+        p.Anaplan,
         h.SoftCloseOut,
+        ic.cost as Cost,
         p.Style,
         h.MasterCategory,
-        p.SubCategory as Class,
-        p.MerchandiseSubclass as Subclass,
-        p.VendorSku as VendorSKU,
-        charindex(left(nullif(p.SellOutTargetDateMonth, ''), 3),'JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC')/4+1 as SellOutTargetDateMonth,
-        nullif(trim(p.SellOutTargetDateYear), '') as SellOutTargetDateYear,
-        charindex(left(nullif(p.PlannedArrivalDateMonth, ''), 3),'JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC')/4+1 as PlannedArrivalDateMonth,
-        nullif(try_convert(date, p.FirstSalesDate), convert(date, '1900-01-01')) as FirstSalesDate,
+        p.Class,
+        p.Subclass,
+        p.VendorSKU,
+        p.SellOutTargetDateMonth,
+        p.SellOutTargetDateYear,
+        p.PlannedArrivalDateMonth,
+        p.FirstSalesDate,
         case 
-            when p.MainSku is null and p.Status = 'Active' then 'Terminated'
+            when p.Number is null and p.Status = 'Active' then 'Terminated'
             else p.Status
         end as Status,
         p.CalfWidth,
-        '' as BrandFinancialEntity,
+        '' as BrandFinancialEntity, -- WHY DO WE HAVE THIS?
         p.ShoeWidth,
         p.ColorClass,
-        i.IntangibleItemFlag as IsIntangible,
+        p.IsIntangible,
         p.MSRP,
         p.Division,
-        iif(i.ClassType like '%suppl%', 1, 0) as IsSupplies,
-        coalesce(b.BrandId, 0) as BrandId,
+        p.IsSupplies,
+        coalesce(p.BrandId, 0) as BrandId,
         p.SeasonBudget,
         p.SellingStatus
-    from item i
-    left join product p on p.MainSku = i.[Number]
-    left join brand b on b.Brand = case
-        when p.Brand in ('Journee Collection', 'Journee Signature') then 'Journee'
-        when p.Brand in ('Territory', 'Thomas & Vine', 'Taft 365') then 'Discontinued'
-        else p.Brand
-    end
+    from product p 
+    left join item i on p.Number = i.[Number]
     left join historical h on h.ItemId = i.ItemId
     left join item_cogs ic on ic.ItemId=i.ItemId
     where i.[Number] is not null

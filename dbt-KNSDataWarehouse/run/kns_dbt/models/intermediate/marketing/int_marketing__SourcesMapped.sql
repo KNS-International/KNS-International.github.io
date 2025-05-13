@@ -62,7 +62,7 @@ parsed_campaign as (
       Date, AdName, AdSet, Campaign, TradingPartnerId, Platform, Channel, Type,
       Spend, ClickThrough, Impressions, Conversions, SalesDollars, SalesUnits,
       XMLParts, PeriodCount, FirstSegment,
-      coalesce(XMLParts.value(''(/i)[1]'', ''varchar(100)''), Brand) as Part1,  -- Expecting the brand letter (J, T, V)
+      XMLParts.value(''(/i)[1]'', ''varchar(100)'') as Part1,  -- Expecting the brand letter (J, T, V)
       XMLParts.value(''(/i)[2]'', ''varchar(100)'') as Part2,
       XMLParts.value(''(/i)[3]'', ''varchar(100)'') as Part3,  -- Code for Objective mapping
       XMLParts.value(''(/i)[4]'', ''varchar(100)'') as Part4,  -- Code for LandingPage mapping
@@ -90,7 +90,6 @@ complete_parse as (
               when ''B'' then ''Birdies''
               else null
           end
-        when PeriodCount != 8 AND p.Part1 is not null then p.Part1
         else null
       end as BrandMapping,
       -- Map Part3 to Objective using your defined codes

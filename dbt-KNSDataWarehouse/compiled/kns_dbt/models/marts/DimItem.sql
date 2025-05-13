@@ -4,12 +4,6 @@ dim_item as (
     select * from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__DimItemPrep"
 ),
 
-product as (
-
-    select MainSku from "KNSDevDbt"."dbt_prod_staging"."stg_salsify__Product"
-
-),
-
 size_run as (
     select 
         * 

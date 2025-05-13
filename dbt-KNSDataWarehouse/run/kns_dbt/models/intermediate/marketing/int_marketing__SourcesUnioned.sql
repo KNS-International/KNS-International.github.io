@@ -106,7 +106,7 @@ coop_campaign as (
         ''Co-Op-Campaigns-Ad'' as AdName,
         ''Co-Op-Campaigns-Ad-Set'' as AdSet,
         FrontCode as Campaign,
-        substring(substring(trim(BackCode), len(trim(BackCode)) - 20, 21), 1, 3) as TradingPartnerId,
+        cast(substring(substring(trim(BackCode), len(trim(BackCode)) - 20, 21), 1, 3) as int) as TradingPartnerId,
         ''Co-Op Campaigns'' as Platform,
         null as Channel,
         null as Type,
@@ -134,10 +134,10 @@ roundel as (
         ''Roundel-Ad-Set'' as AdSet,
         campaignName as Campaign,
         62 as TradingPartnerId,
-        platform as Platform,
+        ''Roundel'' as Platform,
         null as Channel,
         null as Type,
-        brand as Brand,
+        null as Brand,
         Spend,
         clicks / NULLIF(Impressions, 0) as ClickThrough, --CHECK THIS LOGIC
         Impressions,
@@ -149,7 +149,7 @@ roundel as (
 ),
 
 sources_unioned as (
-    select * from criteo
+    select * from northbeam
     union all
     select * from northbeam
     union all
