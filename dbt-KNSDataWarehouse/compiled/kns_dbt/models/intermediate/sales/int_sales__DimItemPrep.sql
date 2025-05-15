@@ -78,7 +78,7 @@ final as (
 
     select
         i.ItemId,
-        i.[Number],
+        p.[Number],
         h.Category,
         h.Subcategory,
         coalesce(nullif(p.Brand, ''), '*No Catalog*') as Catalog,
