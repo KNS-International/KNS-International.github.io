@@ -6,7 +6,7 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_cb01303d6525c23f2fa5ea07735a298a]
+    [dbt_test__audit.testview_6d9cf26c06f9570e27de4f00f194e12d]
    as with relation_columns as (
 
         
@@ -64,12 +64,12 @@
   from (
     select  * from 
 
-    [dbt_test__audit.testview_cb01303d6525c23f2fa5ea07735a298a]
+    [dbt_test__audit.testview_6d9cf26c06f9570e27de4f00f194e12d]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_cb01303d6525c23f2fa5ea07735a298a]
+    [dbt_test__audit.testview_6d9cf26c06f9570e27de4f00f194e12d]
   ;')
