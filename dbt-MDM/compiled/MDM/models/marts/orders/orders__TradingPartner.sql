@@ -1,3 +1,7 @@
 
 
-select * from "KNSUnifiedMDM"."prod"."stg_deposco__TradingPartner"
+select 
+  Name,
+  FulfillmentChannelType,
+  FinancialChannelType
+from "KNSUnifiedMDM"."prod"."stg_deposco__TradingPartner"

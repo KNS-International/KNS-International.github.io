@@ -1,7 +1,7 @@
 
 
 with styles as ( 
-    select * from "KNSUnifiedMDM"."Products"."Style"
+    select * from Products.Style
 ),
 
 variants as (

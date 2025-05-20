@@ -3,7 +3,11 @@
 with ranked as (
   select 
     MerchandiseSubclass as Name,
-    SubCategory as Class,
+    case
+      when SubCategory is null or SubCategory in ('', '*No Category*', 'SHIPPING PROTECTION')
+      then 'OTHER'
+      else SubCategory
+    end as Class,
     row_number() over (partition by MerchandiseSubclass order by (select null)) as rn
   from "KNSUnifiedMDM"."prod"."stg_salsify__Product"
   where 
