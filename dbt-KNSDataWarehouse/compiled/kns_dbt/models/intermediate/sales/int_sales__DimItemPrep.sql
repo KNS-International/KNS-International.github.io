@@ -57,7 +57,11 @@ product as (
         c.Name as Category,
         c.BrandId,
         sc.Name as Subclass,
-        sc.Class,
+        case
+            when sc.Class is null or sc.Class in ('', '*No Category*', 'SHIPPING PROTECTION')
+            then 'OTHER'
+            else sc.Class
+        end as Class,
         s.Vendor,
         s.VendorSku,
         s.Gender,
