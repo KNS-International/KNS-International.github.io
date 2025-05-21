@@ -18,6 +18,7 @@ source as (
 columns as (
 
     select 
+        cast([TRADING_PARTNER_ID] as bigint) as TradingPartnerId,
         cast([NAME] as nvarchar(50)) as Name,
         cast([BILL_TO_COUNTRY] as varchar(100)) as FulfillmentChannelType,
         cast([BILL_TO_STATE_PROVINCE] as varchar(100)) as FinancialChannelType,
@@ -29,6 +30,7 @@ columns as (
 
 cleaned as (
     select
+        TradingPartnerId,
         Name,
         FulfillmentChannelType,
         FinancialChannelType,
