@@ -17,7 +17,8 @@ cleaned as (
         cast(SHIPPING_STATUS as int) as ShippingStatus,
         cast(ORDER_HEADER_ID as bigint) as OrderHeaderId,
         cast(KNS_MT_ACTUAL_SHIP_DATE as	datetime) as ShippedAt,
-        cast(ORDER_DISCOUNT_SUBTOTAL as float) as DiscountAmount
+        cast(ORDER_DISCOUNT_SUBTOTAL as float) as DiscountAmount,
+        cast(CURRENT_STATUS as varchar(50)) as CurrentStatus
     from source
     where TYPE = 'Sales Order'
 
