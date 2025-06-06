@@ -21,6 +21,7 @@ cleaned as (
         cast(CURRENT_STATUS as varchar(50)) as CurrentStatus
     from source
     where TYPE = 'Sales Order'
+    and COMPANY_ID = 73
 
 )
 

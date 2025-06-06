@@ -12,13 +12,16 @@ USE [KNSUnifiedMDM];
     select distinct
         Style as Name,
         Vendor,
-        VendorSku,
         Seasonality as Season,
         CaseQuantity,
         Gender,
         Brand,
-        MerchandiseSubclass,
-        SeasonBudget
+        SeasonBudget,
+        case
+            when SubCategory is null or SubCategory in ('''', ''*No Category*'', ''SHIPPING PROTECTION'')
+            then ''OTHER''
+            else SubCategory
+        end as Class
     from "KNSUnifiedMDM"."prod"."stg_salsify__Product"
 
 ),
@@ -37,14 +40,13 @@ ranked as (
 
 select
     Name,
+    Class,
     Vendor,
-    VendorSku,
     Season,
     CaseQuantity,
     SeasonBudget,
     Gender,
-    Brand,
-    MerchandiseSubclass
+    Brand
 from ranked
 where rank = 1
     and Name is not null

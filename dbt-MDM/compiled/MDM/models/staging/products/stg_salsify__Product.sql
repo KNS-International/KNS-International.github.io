@@ -52,7 +52,8 @@ cleaned as (
         cast(MSRP as decimal(19, 4)) as Msrp,
         cast([Season Budget] as nvarchar(16)) as SeasonBudget,
         cast([Selling Status] as nvarchar(32)) as SellingStatus,
-        cast([Direct Sourcing Model] as nvarchar(64)) as DirectSourcingModel
+        cast([Direct Sourcing Model] as nvarchar(64)) as DirectSourcingModel,
+        cast([DTC Website Color] as nvarchar(64)) as DtcWebsiteColor
     from source
     where nullif(trim([Parent SKU]), '') is not null
 

@@ -16,13 +16,13 @@
 
     
     when matched then update set
-        "Name" = DBT_INTERNAL_SOURCE."Name","FinancialChannelType" = DBT_INTERNAL_SOURCE."FinancialChannelType","FulfillmentChannelType" = DBT_INTERNAL_SOURCE."FulfillmentChannelType"
+        "Name" = DBT_INTERNAL_SOURCE."Name","FinancialChannelType" = DBT_INTERNAL_SOURCE."FinancialChannelType","FulfillmentChannelType" = DBT_INTERNAL_SOURCE."FulfillmentChannelType","Code" = DBT_INTERNAL_SOURCE."Code","IsReturnsPartner" = DBT_INTERNAL_SOURCE."IsReturnsPartner"
     
 
     when not matched then insert
-        ("Name", "FinancialChannelType", "FulfillmentChannelType")
+        ("Name", "FinancialChannelType", "FulfillmentChannelType", "Code", "IsReturnsPartner")
     values
-        ("Name", "FinancialChannelType", "FulfillmentChannelType");
+        ("Name", "FinancialChannelType", "FulfillmentChannelType", "Code", "IsReturnsPartner");
 
 
   

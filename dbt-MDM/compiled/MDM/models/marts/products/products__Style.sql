@@ -8,17 +8,12 @@ catalog as (
     select * from "KNSUnifiedMDM"."prod"."stg_mdm_products__Catalog"
 ),
 
-subclass as (
-    select * from "KNSUnifiedMDM"."prod"."stg_mdm_products__Subclass"
-),
-
 final as (
     select 
         null as Code,
-        c.CatalogId,
-        sc.SubclassId,
+        c.CatalogId,\
+        s.Class,
         s.Vendor,
-        s.VendorSku,
         s.Season,
         s.CaseQuantity,
         s.Name,
@@ -30,8 +25,6 @@ final as (
     from styles s
     left join catalog c
     on s.Brand = c.Name
-    left join subclass sc
-    on s.MerchandiseSubclass = sc.Name
     where s.Name is not null
         and s.Name != ''
 )

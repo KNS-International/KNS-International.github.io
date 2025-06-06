@@ -1,7 +1,42 @@
 
 
+
+
 with styles as ( 
-    select * from Products.Style
+    select * from "KNSUnifiedMDM"."Products"."Style"
+),
+
+supplies as (
+    select 
+        Number, 
+        null as Code, 
+        2590 as StyleId, 
+        null as SizeId, 
+        null as Status, 
+        null as SellingStatus,
+        null as ShoeWidth, 
+        null as CalfWidth, 
+        null as Parent, 
+        null as ClosureType, 
+        null as HeelType, 
+        null as StyleType,
+        null as SizeRun, 
+        null as ColorName, 
+        null as ColorClass, 
+        null as Subclass, 
+        null as VendorSku, 
+        null as IsAnaplanActive,
+        null as SellOutTargetAt, 
+        null as PlannedArrivalAt, 
+        null as FirstSalesDateAt, 
+        null as MSRP, 
+        1 as IsSupplies, 
+        0 as IsIntangible, 
+        null as DirectSourcingModel,
+        null as DtcWebsiteColor
+    from "KNSUnifiedMDM"."prod"."stg_deposco__Item" i
+    where IsSupplies like '%suppl%'
+        and CompanyId = 73
 ),
 
 variants as (
@@ -19,6 +54,8 @@ variants as (
         SizeRun,
         Color as ColorName,
         ColorClass,
+        MerchandiseSubclass as Subclass,
+        VendorSku,
         AnaplanActive as IsAnaplanActive,
         case 
             when SellOutTargetDateYear is not null and SellOutTargetDateMonth is not null
@@ -28,10 +65,11 @@ variants as (
         PlannedArrivalDateMonth as PlannedArrivalAt,
         FirstSalesDateAt,
         MSRP,
-        iif(i.IsSupplies like '%suppl%', 1, 0) as IsSupplies,
+        0 as IsSupplies,
         i.IsIntangible as IsIntangible,
         DirectSourcingModel,
         Style,
+        DtcWebsiteColor as DtcWebsiteColor,
         row_number() over (partition by MainSku order by (select null)) as rn
     from "KNSUnifiedMDM"."prod"."stg_salsify__Product" p
     left join "KNSUnifiedMDM"."prod"."stg_deposco__Item" i
@@ -40,7 +78,7 @@ variants as (
         and MainSku != ''
 ),
 
-final as (
+variant_deduped as (
     select 
         Number,
         null as Code,
@@ -57,6 +95,8 @@ final as (
         v.SizeRun,
         v.ColorName,
         v.ColorClass,
+        v.Subclass,
+        v.VendorSku,
         v.IsAnaplanActive,
         v.SellOutTargetAt,
         v.PlannedArrivalAt,
@@ -64,11 +104,49 @@ final as (
         v.MSRP,
         v.IsSupplies,
         v.IsIntangible,
-        v.DirectSourcingModel
+        v.DirectSourcingModel,
+        v.DtcWebsiteColor
     from variants v
     left join styles s
     on v.Style = s.Name
     where rn = 1
+),
+
+unioned as (
+    select * from supplies
+    union all
+    select * from variant_deduped
+),
+
+final as (
+    select 
+        Number,
+        Code,
+        StyleId,
+        SizeId,
+        Status,
+        SellingStatus,
+        ShoeWidth,
+        CalfWidth,
+        Parent,
+        ClosureType,
+        HeelType,
+        StyleType,
+        SizeRun,
+        ColorName,
+        ColorClass,
+        Subclass,
+        VendorSku,
+        IsAnaplanActive,
+        SellOutTargetAt,
+        PlannedArrivalAt,
+        FirstSalesDateAt,
+        MSRP,
+        IsSupplies,
+        IsIntangible,
+        DirectSourcingModel,
+        DtcWebsiteColor
+    from unioned
 )
 
 select * from final

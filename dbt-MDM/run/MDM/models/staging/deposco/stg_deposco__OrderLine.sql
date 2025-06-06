@@ -31,6 +31,7 @@ cleaned as (
         -- cast(UPDATED_DATE as datetime) as UpdatedDate
     from source
     where CREATED_DATE < dateadd(minute, -30, getdate())
+    and ORDER_PACK_QUANTITY >= 0
 
 
 )

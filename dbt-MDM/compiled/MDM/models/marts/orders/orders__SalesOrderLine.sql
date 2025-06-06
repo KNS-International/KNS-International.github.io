@@ -5,15 +5,22 @@
 
 with order_line as (
     select
-        OrderLineId as SourceId,
-        PackId,
-        OrderHeaderId as OrderSourceId,
-        ItemId,
-        OrderPackQuantity,
-        CanceledPackQuantity,
-        UnitCost,
-        OrderLineStatus
-    from "KNSUnifiedMDM"."prod"."stg_deposco__OrderLine"
+        cast(ol.OrderLineId as nvarchar(200)) as SourceId,
+        ol.PackId,
+        cast(ol.OrderHeaderId as nvarchar(200)) as OrderSourceId,
+        ol.ItemId,
+        ol.OrderPackQuantity,
+        ol.CanceledPackQuantity,
+        ol.UnitCost,
+        ol.OrderLineStatus,
+        'Deposco' as SourceSystem
+    from "KNSUnifiedMDM"."prod"."stg_deposco__OrderLine" ol
+    left join "KNSUnifiedMDM"."prod"."stg_deposco__Item" i
+    on ol.ItemId = i.ItemId
+    where ol.OrderLineStatus not in ('Void', 'Voided')
+        and i.CompanyId = 73
+        and i.ItemId != 102648 -- Exclude 'Invalid Item' item
+
 ),
 
 invoice_header as (
@@ -66,9 +73,10 @@ net_invoices as (
 final as (
 
     select
-        ol.SourceId,
+        cast(ol.SourceId as nvarchar(200)) as SourceId,
         so.SalesOrderId,
         v.VariantId as ProductVariantId,
+        ol.ItemId,
         ol.OrderPackQuantity * p.Quantity as QuantityOrdered,
         iif(
             oh.ShippingStatus = 20,
@@ -90,8 +98,9 @@ final as (
     from order_line ol
     join "KNSUnifiedMDM"."prod"."stg_deposco__OrderHeader" oh
     on ol.OrderSourceId = oh.OrderHeaderId
-    left join "KNSUnifiedMDM"."Orders"."SalesOrder" so
+    join "KNSUnifiedMDM"."Orders"."SalesOrder" so
     on ol.OrderSourceId = so.SourceId
+        and ol.SourceSystem = so.SourceSystem
     left join "KNSUnifiedMDM"."prod"."stg_deposco__Item" i
     on ol.ItemId = i.ItemId
     left join "KNSUnifiedMDM"."Products"."Variant" v
@@ -102,6 +111,7 @@ final as (
     on ol.OrderSourceId = ih.OrderHeaderId
     left join net_invoices n
     on ih.InvoiceHeaderId = n.InvoiceId and v.Number = n.ItemNumber
+    where oh.CurrentStatus not in ('Void', 'Voided')
     
 )
 
