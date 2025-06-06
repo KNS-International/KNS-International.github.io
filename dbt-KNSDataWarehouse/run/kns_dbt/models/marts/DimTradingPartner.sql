@@ -18,8 +18,8 @@ trading_partners as (
         TradingPartnerId,
         Name,
         Code,
-        BillToCountry as ChannelType
-    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner"
+        FulfillmentChannelType as ChannelType
+    from "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartner"
 
 ),
 

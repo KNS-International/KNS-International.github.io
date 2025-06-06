@@ -11,8 +11,8 @@ accepted_tp as (
         Code,
         TradingPartnerId,
         Name
-    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner"
-    where ContactEmail = 'TRUE'
+    from "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartner"
+    where IsReturnsPartner = 1
         and Name != 'MARKETING'
 
 ),

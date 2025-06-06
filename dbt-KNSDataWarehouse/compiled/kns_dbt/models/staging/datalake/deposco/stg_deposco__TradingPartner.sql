@@ -13,7 +13,7 @@ cleaned as (
          cast(CODE as varchar(40)) as Code,
          cast(NAME as varchar(50)) as Name,
          cast(BILL_TO_COUNTRY as varchar(100)) as BillToCountry,
-         cast(CONTACT_EMAIL as varchar(50)) as ContactEmail,
+         cast(CONTACT_EMAIL as varchar(50)) as IsReturnsPartner,
          cast(TAX_RATE as float) as TaxRate,
          cast(UPS_ACCOUNT_NUMBER as varchar(100)) as UpsAccountNumber
     from source

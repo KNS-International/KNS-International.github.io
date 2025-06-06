@@ -1,1 +1,1 @@
-select * from "KNSUnifiedMDM"."products"."Brand"
+select * from "KNSUnifiedMDM"."Products"."Brand"

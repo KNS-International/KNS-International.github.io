@@ -3,7 +3,7 @@ with
 source as (
 
     select 
-        concat('Returns Accrual/', tl.UniqueKey) as Number,
+        cast(concat('Returns Accrual/', tl.UniqueKey) as nvarchar(255)) as Number,
         171516 as ItemId,
         tp.TradingPartnerId as TradingPartnerId,
         'Discontinued' as Brand,
@@ -30,7 +30,7 @@ source as (
         on tl.[Transaction] = t.Id
     join "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__Entity" e
         on t.Entity = e.Id
-    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner" tp
+    join "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartner" tp
         on e.EntityId = tp.Name
     where tl.Memo = 'Returns Accrual'
         and tl.ExpenseAccount=214

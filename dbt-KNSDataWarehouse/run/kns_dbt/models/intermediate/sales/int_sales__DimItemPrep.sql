@@ -62,17 +62,14 @@ product as (
         v.IsIntangible,
         v.DirectSourcingModel,
         v.SellingStatus,
+        v.DtcWebsiteColor,
         s.Name as Style,
         c.Name as Category,
         c.BrandId,
-        sc.Name as Subclass,
-        case
-            when sc.Class is null or sc.Class in ('''', ''*No Category*'', ''SHIPPING PROTECTION'')
-            then ''OTHER''
-            else sc.Class
-        end as Class,
+        v.Subclass,
+        s.Class,
         s.Vendor,
-        s.VendorSku,
+        v.VendorSku,
         s.Gender,
         s.Season,
         s.CaseQuantity,
@@ -82,7 +79,6 @@ product as (
         b.Division
     from variants v
     left join styles s on v.StyleId = s.StyleId
-    left join subclasses sc on s.SubclassId = sc.SubclassId
     left join catalog c on s.CatalogId = c.CatalogId
     left join brands b on c.BrandId = b.BrandId
 ),
@@ -140,9 +136,19 @@ final as (
         p.MSRP,
         p.Division,
         p.IsSupplies,
-        coalesce(p.BrandId, 0) as BrandId,
+        case
+            when i.ItemId = 153085 then 1
+            when i.ItemId = 170695 then 1
+            when i.ItemId = 204260 then 1 
+            when i.ItemId = 204262 then 2
+            when i.ItemId = 204261 then 3
+            when i.ItemId = 212170 then 4
+            else coalesce(p.BrandId, 0)
+        end as BrandId,
         p.SeasonBudget,
-        p.SellingStatus
+        p.SellingStatus,
+        p.DirectSourcingModel,
+        p.DtcWebsiteColor
     from product p 
     left join item i on p.Number = i.[Number]
     left join historical h on h.ItemId = i.ItemId

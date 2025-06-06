@@ -1,199 +1,236 @@
-
-
-
-with
-
-params as (
-    select dateadd(day, -10, current_timestamp) as last_update
-),
-
-orders_to_pull as (
-
-    select
-        oh.OrderHeaderId
-    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" as oh
-    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" as ol
-        on oh.OrderHeaderId = ol.OrderHeaderId
-    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__CoLine" as cl
-        on ol.CoLineId = cl.CoLineId
-    
-    cross join params
-    where
-        (oh.UpdatedDate >= params.last_update or
-        ol.UpdatedDate >= params.last_update or
-        cl.UpdatedDate >= params.last_update)
-        and
-        (select max(v) from (values(oh.UpdatedDate), (ol.UpdatedDate), (cl.UpdatedDate)) as value(v)) > params.last_update
-    
-
-),
-
-order_line_list as (
-
-    select
-        concat('Deposco/', cast(ol.OrderLineId as varchar)) as [Number],
-        ol.ItemId,
-        oh.ConsigneePartnerId as TradingPartnerId,
-        coalesce(ol.OrderPackQuantity * ol.UnitCost, 0) as Amount,
-        coalesce(ol.OrderPackQuantity, 0) as Quantity,
-        oh.CustomerOrderNumber as PoNumber,
-        oh.KnsMtPlacedDate as PlacedDate,
-        oh.KnsMtCreatedDate as CreatedDate,
-        coalesce(oh.KnsMtPlannedReleaseDate, oh.KnsMtPlannedShipDate) as ContractualShipDate,
-        oh.KnsMtPlannedShipDate as PlannedShipDate,
-        oh.KnsMtActualShipDate as ActualShipDate,
-        oh.CurrentStatus as HeaderCurrentStatus,
-        case 
-            when oh.ShippingStatus = '0' then 'Not Shipped'
-            when oh.ShippingStatus = '10' then 'Partially Shipped'
-            else 'Shipped'
-        end as HeaderShippingStatus,
-        ol.OrderLineStatus as LineStatus,
-        coalesce(ol.OrderPackQuantity * tp.TaxRate, 0) as HandlingFee,
-        null as Season
-    from orders_to_pull q
-    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh 
-      on oh.OrderHeaderId = q.OrderHeaderId
-    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol 
-      on ol.OrderHeaderId = oh.OrderHeaderId
-    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__CoLine" cl 
-      on cl.CoLineId = ol.CoLineId
-    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner" tp 
-      on tp.TradingPartnerId = oh.ConsigneePartnerId
-    where oh.Type = 'Sales Order'
-      and (oh.OrderSource is null or oh.OrderSource not in (
-           'Shipped Sales', 'Forecast Sales', 'Montly Net Revenue Percent',
-           'Net Margin', 'Net Revenue Forecast', 'InvalidSource', 
-           'Potential Sales', 'Amazon FBA', 'Walmart WFS'))
-      and (oh.CustomerOrderNumber is null or oh.CustomerOrderNumber not like 'FBA%')
-      and tp.Name != '- No Customer/Project -'
-
-),
-
-filtered as (
-
-    select 
-        * 
-    from order_line_list
-    where not (
-        HeaderShippingStatus = 'Shipped'
-        and ItemId != 153085
-        and LineStatus not in ('Complete', 'Canceled', 'Closed')
-    )
-
-),
-
-deduped_ranked as (
-
-    select 
-        f.*,
-        ROW_NUMBER() OVER (
-            PARTITION BY f.Number 
-            ORDER BY case when f.LineStatus = 'Complete' then 0 else 1 end
-        ) as rn,
-        case 
-            when di.Parent = 'Shipping Protection' then
-                ROW_NUMBER() OVER (
-                    PARTITION BY oh.OrderHeaderId, f.ItemId 
-                    ORDER BY case when f.LineStatus = 'Complete' then 0 else 1 end
-                )
-            else 1
-        end as shipping_protection_row
-    from filtered f
-    left join "KNSDevDbt"."dbt_prod_marts"."DimItem" di 
-        on di.ItemId = f.ItemId
-    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol 
-        on ol.OrderLineId = cast(replace(f.Number, 'Deposco/', '') as int)
-    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh 
-        on oh.OrderHeaderId = ol.OrderHeaderId
-),
-
-
-deduped as (
-    select *
-    from deduped_ranked
-    where rn = 1
-      and shipping_protection_row = 1
-),
+with 
 
 update_order_protection as (
     select
-        fs.Number,
+        ol.OrderLineId as Number,
         oh.CoHeaderId as ChId
-    from deduped fs
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol
     join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Item" i 
-        on i.ItemId = fs.ItemId
-    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol 
-        on ol.OrderLineId = cast(replace(fs.Number, 'Deposco/', '') as int)
+        on i.ItemId = ol.ItemId
     join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh 
         on oh.OrderHeaderId = ol.OrderHeaderId
     where i.Name = 'Order Protection'
         and coalesce(i.ClassType, '') = ''
-        and fs.Number like 'Deposco/%'
 ),
 
 ch_ids as (
     select
-        fs.Number,
+        ol.OrderLineId as Number,
         oh.CoHeaderId as ChId,
         di.BrandId
-    from deduped fs
-    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol 
-        on ol.OrderLineId = cast(replace(fs.Number, 'Deposco/', '') as int)
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol 
     join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh 
         on oh.OrderHeaderId = ol.OrderHeaderId
     join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Item" i 
-        on i.ItemId = fs.ItemId
-    join "KNSDevDbt"."dbt_prod_marts"."DimItem" di 
+        on i.ItemId = ol.ItemId
+    join "KNSDataWarehouse"."Deposco"."DimItem" di 
         on di.ItemId = i.ItemId
-    where fs.Number like 'Deposco/%'
-        and coalesce(i.Name, '') != 'Order Protection'
+    where coalesce(i.Name, '') != 'Order Protection'
 ),
 
-final_mapping as (
+order_protection_mapping as (
     select 
         o.Number,
-        min(c.BrandId) as BrandId
+        max(c.BrandId) as BrandId
     from update_order_protection o
     join ch_ids c 
         on c.ChId = o.ChId
     group by o.Number
 ),
 
-shipping_protection as (
+order_protection_item as (
     select 
         i.ItemId,
         i.BrandId
-    from "KNSDevDbt"."dbt_prod_marts"."DimItem" i
-    where i.Parent = 'Shipping Protection'
+    from "KNSDataWarehouse"."Deposco"."DimItem" i
+    where i.ItemId in (
+        204260
+        ,204261
+        ,204262
+        ,212170
+    )
+),
+
+sales_order as (
+    select
+        SalesOrderId,
+        PONumber,
+        TradingPartnerId,
+        PlacedAt,
+        ContractualShipAt,
+        PlannedShipAt,
+        Status,
+        ShippedAt,
+        FreightOutCOGSAmount,
+        DiscountAmount
+    from "KNSDevDbt"."dbt_prod_staging"."stg_orders__SalesOrder"
+),
+
+sales_order_line as (
+    select
+        sol.SalesOrderLineId,
+        sol.SalesOrderId,
+        sol.SourceId,
+        sol.ItemId,
+        sol.ProductVariantId,
+        case
+            when so.Status = 'closed' then sol.QuantityShipped
+            else sol.QuantityOrdered
+        end as Quantity,
+        sol.UnitCostAmount,
+        sol.UnitItemCOGSAmount,
+        sol.QuantityShipped
+    from "KNSDevDbt"."dbt_prod_staging"."stg_orders__SalesOrderLine" sol
+    left join sales_order so
+    on sol.SalesOrderId = so.SalesOrderId
+),
+
+-- THIS SHOULD BE RENAMED TO TRADING_PARTNER AFTER FIXING THE TRADING PARTNER ID
+mdm_trading_partner as (
+    select
+        TradingPartnerId,
+        Name
+    from "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartner"
+),
+
+-- trading_partner_handling_fee as (
+--     select
+--         TradingPartnerId,
+--         StartDate,
+--         EndDate,
+--         HandlingFeeType,
+--         HandlingFee
+--     from "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartnerHandlingFee"
+-- ),
+
+trading_partner as (
+    select
+        TradingPartnerId,
+        Name,
+        TaxRate
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner"
+),
+
+joined as (
+    select
+        cast(concat('Deposco/', sol.SourceId) as nvarchar(255)) as Number,
+        case 
+            when opi.ItemId is not null and sol.ItemId != opi.ItemId then opi.ItemId
+            else sol.ItemId
+        end as ItemId,
+        tp.TradingPartnerId,
+        b.Name as Brand,
+        null as LastUpdatedAt,
+        sol.Quantity*sol.UnitCostAmount as Amount,
+        sol.Quantity,
+        so.PONumber,
+        so.PlacedAt as PlacedDate,
+        so.PlacedAt as CreatedDate,
+        so.ContractualShipAt as ContractualShipDate,
+        so.PlannedShipAt as PlannedShipDate,
+        so.ShippedAt as ActualShipDate,
+        case
+            when so.Status = 'open' then 'New'
+            when so.Status = 'closed' then 'Complete'
+            else null
+        end as HeaderCurrentStatus,
+        case
+            when so.Status = 'open' then 'Not Shipped'
+            when so.Status = 'closed' then 'Shipped'
+            else null
+        end as HeaderShippingStatus,
+        case
+            when so.Status = 'open' then 'New'
+            when so.Status = 'closed' then 'Complete'
+            else null
+        end as LineStatus,
+        convert(decimal(19,4),
+            (cast(sol.Quantity as decimal(19,4)) / 
+            nullif(sum(coalesce(sol.Quantity, 0)) over (partition by sol.SalesOrderId), 0)) 
+            * so.FreightOutCOGSAmount
+        ) as FreightOutCOGS,
+        sol.UnitItemCOGSAmount*sol.Quantity as ItemCOGS,
+        -- case
+        --     when tphf.HandlingFeeType = 'Order' 
+        --         then tphf.HandlingFee
+        --     when tphf.HandlingFeeType = 'Unit' 
+        --         then tphf.HandlingFee*sol.Quantity
+        --     else null
+        -- end as HandlingFee,
+
+        -- DELETE THE FOLLOWING LINE WHEN FIXING TRADING PARTNER ID 
+        coalesce(sol.Quantity * tp.TaxRate, 0) as HandlingFee,
+
+        convert(decimal(19,4),
+            (cast(sol.Quantity as decimal(19,4)) / 
+            nullif(sum(coalesce(sol.Quantity, 0)) over (partition by sol.SalesOrderId), 0)) 
+            * so.DiscountAmount
+        ) as DiscountAmount,
+        null as RecordUpdatedAt,
+        null as season
+    from sales_order_line sol
+    left join sales_order so
+    on sol.SalesOrderId = so.SalesOrderId
+    
+    -- THIS SECTION ALSO NEEDS TO BE CHANGED BACK TO ONLY USING THE MDM TRADING PARTNER TABLE
+    left join mdm_trading_partner mtp
+    on so.TradingPartnerId = mtp.TradingPartnerId
+    left join trading_partner tp
+    on mtp.Name = tp.Name
+    -- left join trading_partner_handling_fee tphf
+    -- on so.TradingPartnerId = tphf.TradingPartnerId
+    --     and so.PlacedAt >= tphf.StartDate
+    --     and (so.PlacedAt <= tphf.EndDate or tphf.EndDate is null)
+    left join order_protection_mapping opm
+    on cast(sol.SourceId as nvarchar(200)) = cast(opm.Number as nvarchar(200))
+    left join order_protection_item opi
+    on opm.BrandId = opi.BrandId
+    left join "KNSDataWarehouse"."Deposco"."DimItem" di 
+    on sol.ItemId = di.ItemId
+    left join "KNSDevDbt"."dbt_prod_staging"."stg_products__Brand" b
+    on di.BrandId = b.BrandId
+    where tp.Name not in (
+        'Marketing',
+        '- No Customer/Project -'
+    )
+),
+
+depsco_filters as (
+    select
+        j.*
+    from joined j
+    where (j.PONumber is null 
+            or j.PONumber not like 'FBA%')
+        and not (j.HeaderShippingStatus = 'Shipped' 
+            and j.ItemId = 153085
+            and j.LineStatus != 'Complete')
 ),
 
 final as (
-    select 
-        d.Number,
-        case 
-            when sp.ItemId is not null and d.ItemId <> sp.ItemId then sp.ItemId
-            else d.ItemId
-        end as ItemId,
-        d.TradingPartnerId,
-        d.Amount,
-        d.Quantity,
-        d.PoNumber,
-        d.PlacedDate,
-        d.CreatedDate,
-        d.ContractualShipDate,
-        d.PlannedShipDate,
-        d.ActualShipDate,
-        d.HeaderCurrentStatus,
-        d.HeaderShippingStatus,
-        d.LineStatus,
-        d.HandlingFee,
-        d.Season
-    from deduped d
-    left join final_mapping fm 
-        on fm.Number = d.Number
-    left join shipping_protection sp 
-        on sp.BrandId = fm.BrandId
+    select
+        Number,
+        ItemId,
+        TradingPartnerId,
+        Brand,
+        LastUpdatedAt,
+        Amount,
+        Quantity,
+        PONumber,
+        PlacedDate,
+        CreatedDate,
+        ContractualShipDate,
+        PlannedShipDate,
+        ActualShipDate,
+        HeaderCurrentStatus,
+        HeaderShippingStatus,
+        LineStatus,
+        FreightOutCOGS,
+        ItemCOGS,
+        HandlingFee,
+        DiscountAmount,
+        RecordUpdatedAt,
+        Season
+    from depsco_filters
 )
 
 select * from final

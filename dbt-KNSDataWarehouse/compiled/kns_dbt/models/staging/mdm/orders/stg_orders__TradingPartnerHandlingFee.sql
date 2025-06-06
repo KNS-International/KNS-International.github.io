@@ -1,0 +1,1 @@
+select * from "KNSUnifiedMDM"."Orders"."TradingPartnerHandlingFee"
