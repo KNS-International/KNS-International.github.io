@@ -64,7 +64,7 @@ product as (
         v.SellingStatus,
         v.DtcWebsiteColor,
         s.Name as Style,
-        c.Name as Category,
+        c.Name as Catalog,
         c.BrandId,
         v.Subclass,
         s.Class,
@@ -90,7 +90,7 @@ final as (
         p.[Number],
         h.Category,
         h.Subcategory,
-        coalesce(nullif(p.Brand, ''''), ''*No Catalog*'') as Catalog,
+        coalesce(nullif(p.Catalog, ''''), ''*No Catalog*'') as Catalog,
         coalesce(nullif(p.Vendor, ''''), ''*No Vendor*'') as Vendor,
         coalesce(nullif(p.Gender, ''''), ''*No Gender*'') as Gender,
         case
