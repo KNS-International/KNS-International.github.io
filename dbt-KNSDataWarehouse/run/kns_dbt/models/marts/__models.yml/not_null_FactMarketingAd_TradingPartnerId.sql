@@ -6,7 +6,7 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_7d7a668c608ec682349ea0a7d025105d]
+    [dbt_test__audit.testview_c92b5e39128cab1e004f06138203e43f]
    as 
     
     
@@ -28,12 +28,12 @@ where TradingPartnerId is null
   from (
     select  * from 
 
-    [dbt_test__audit.testview_7d7a668c608ec682349ea0a7d025105d]
+    [dbt_test__audit.testview_c92b5e39128cab1e004f06138203e43f]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_7d7a668c608ec682349ea0a7d025105d]
+    [dbt_test__audit.testview_c92b5e39128cab1e004f06138203e43f]
   ;')
