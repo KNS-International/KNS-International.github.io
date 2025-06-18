@@ -11,7 +11,7 @@ catalog as (
 final as (
     select 
         null as Code,
-        c.CatalogId,\
+        c.CatalogId,
         s.Class,
         s.Vendor,
         s.Season,
