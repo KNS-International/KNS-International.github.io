@@ -6,18 +6,18 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_45ab272b4e8a548b713cc7a8a27d300d]
+    [dbt_test__audit.testview_ca775cadeacce2b7b03a840b15bab551]
    as 
     
     
 
 select
-    TradingPartnerId as unique_field,
+    FactSalesLineNumber as unique_field,
     count(*) as n_records
 
-from "KNSDevDbt"."dbt_prod_marts"."DimTradingPartner"
-where TradingPartnerId is not null
-group by TradingPartnerId
+from "KNSDataWarehouse"."Deposco"."DimPLD"
+where FactSalesLineNumber is not null
+group by FactSalesLineNumber
 having count(*) > 1
 
 
@@ -31,12 +31,12 @@ having count(*) > 1
   from (
     select  * from 
 
-    [dbt_test__audit.testview_45ab272b4e8a548b713cc7a8a27d300d]
+    [dbt_test__audit.testview_ca775cadeacce2b7b03a840b15bab551]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_45ab272b4e8a548b713cc7a8a27d300d]
+    [dbt_test__audit.testview_ca775cadeacce2b7b03a840b15bab551]
   ;')
