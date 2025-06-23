@@ -34,7 +34,14 @@ cleaned as (
         cast(KNS_MT_PLANNED_RELEASE_DATE as	datetime) as KnsMtPlannedReleaseDate,
         cast(KNS_MT_PLANNED_SHIP_DATE as datetime) as KnsMtPlannedShipDate,
         cast(KNS_MT_ACTUAL_SHIP_DATE as	datetime) as KnsMtActualShipDate,
-        cast(CO_HEADER_ID as bigint) as CoHeaderId
+        cast(KNS_MT_ACTUAL_RELEASE_DATE as datetime) as KnsMtActualReleaseDate,
+        cast(CO_HEADER_ID as bigint) as CoHeaderId,
+        cast(
+        case 
+            when CUSTOM_ATTRIBUTE1 = ''Express'' then 1 
+            else 0
+        end 
+        as bit) as IsExpress
     from source
 
 )

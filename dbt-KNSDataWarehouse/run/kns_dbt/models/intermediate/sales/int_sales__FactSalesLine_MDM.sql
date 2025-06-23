@@ -10,7 +10,7 @@
     
     USE [KNSDevDbt];
     EXEC('
-        create view "dbt_prod_intermediate"."int_sales__FactSalesLine_Deposco__dbt_tmp__dbt_tmp_vw" as 
+        create view "dbt_prod_intermediate"."int_sales__FactSalesLine_MDM__dbt_tmp__dbt_tmp_vw" as 
 
 with 
 
@@ -68,6 +68,7 @@ order_protection_item as (
 sales_order as (
     select
         SalesOrderId,
+        SourceSystem,
         PONumber,
         TradingPartnerId,
         PlacedAt,
@@ -99,35 +100,26 @@ sales_order_line as (
     on sol.SalesOrderId = so.SalesOrderId
 ),
 
--- THIS SHOULD BE RENAMED TO TRADING_PARTNER AFTER FIXING THE TRADING PARTNER ID
-mdm_trading_partner as (
+trading_partner as (
     select
         TradingPartnerId,
         Name
     from "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartner"
 ),
 
--- trading_partner_handling_fee as (
---     select
---         TradingPartnerId,
---         StartDate,
---         EndDate,
---         HandlingFeeType,
---         HandlingFee
---     from "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartnerHandlingFee"
--- ),
-
-trading_partner as (
+trading_partner_handling_fee as (
     select
         TradingPartnerId,
-        Name,
-        TaxRate
-    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner"
+        StartDate,
+        EndDate,
+        HandlingFeeType,
+        HandlingFee
+    from "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartnerHandlingFee"
 ),
 
 joined as (
     select
-        cast(concat(''Deposco/'', sol.SourceId) as nvarchar(255)) as Number,
+        cast(concat(so.SourceSystem, ''/'', sol.SourceId) as nvarchar(255)) as Number,
         case 
             when opi.ItemId is not null and sol.ItemId != opi.ItemId then opi.ItemId
             else sol.ItemId
@@ -164,17 +156,13 @@ joined as (
             * so.FreightOutCOGSAmount
         ) as FreightOutCOGS,
         sol.UnitItemCOGSAmount*sol.Quantity as ItemCOGS,
-        -- case
-        --     when tphf.HandlingFeeType = ''Order'' 
-        --         then tphf.HandlingFee
-        --     when tphf.HandlingFeeType = ''Unit'' 
-        --         then tphf.HandlingFee*sol.Quantity
-        --     else null
-        -- end as HandlingFee,
-
-        -- DELETE THE FOLLOWING LINE WHEN FIXING TRADING PARTNER ID 
-        coalesce(sol.Quantity * tp.TaxRate, 0) as HandlingFee,
-
+        case
+            when tphf.HandlingFeeType = ''Order'' 
+                then tphf.HandlingFee
+            when tphf.HandlingFeeType = ''Unit'' 
+                then tphf.HandlingFee*sol.Quantity
+            else null
+        end as HandlingFee,
         convert(decimal(19,4),
             (cast(sol.Quantity as decimal(19,4)) / 
             nullif(sum(coalesce(sol.Quantity, 0)) over (partition by sol.SalesOrderId), 0)) 
@@ -185,16 +173,12 @@ joined as (
     from sales_order_line sol
     left join sales_order so
     on sol.SalesOrderId = so.SalesOrderId
-    
-    -- THIS SECTION ALSO NEEDS TO BE CHANGED BACK TO ONLY USING THE MDM TRADING PARTNER TABLE
-    left join mdm_trading_partner mtp
-    on so.TradingPartnerId = mtp.TradingPartnerId
     left join trading_partner tp
-    on mtp.Name = tp.Name
-    -- left join trading_partner_handling_fee tphf
-    -- on so.TradingPartnerId = tphf.TradingPartnerId
-    --     and so.PlacedAt >= tphf.StartDate
-    --     and (so.PlacedAt <= tphf.EndDate or tphf.EndDate is null)
+    on so.TradingPartnerId = tp.TradingPartnerId
+    left join trading_partner_handling_fee tphf
+    on so.TradingPartnerId = tphf.TradingPartnerId
+        and so.PlacedAt >= tphf.StartDate
+        and (so.PlacedAt <= tphf.EndDate or tphf.EndDate is null)
     left join order_protection_mapping opm
     on cast(sol.SourceId as nvarchar(200)) = cast(opm.Number as nvarchar(200))
     left join order_protection_item opi
@@ -251,13 +235,13 @@ select * from final;
     ')
 
 EXEC('
-            SELECT * INTO "KNSDevDbt"."dbt_prod_intermediate"."int_sales__FactSalesLine_Deposco__dbt_tmp" FROM "KNSDevDbt"."dbt_prod_intermediate"."int_sales__FactSalesLine_Deposco__dbt_tmp__dbt_tmp_vw" 
+            SELECT * INTO "KNSDevDbt"."dbt_prod_intermediate"."int_sales__FactSalesLine_MDM__dbt_tmp" FROM "KNSDevDbt"."dbt_prod_intermediate"."int_sales__FactSalesLine_MDM__dbt_tmp__dbt_tmp_vw" 
     OPTION (LABEL = ''dbt-sqlserver'');
 
         ')
 
     
-    EXEC('DROP VIEW IF EXISTS dbt_prod_intermediate.int_sales__FactSalesLine_Deposco__dbt_tmp__dbt_tmp_vw')
+    EXEC('DROP VIEW IF EXISTS dbt_prod_intermediate.int_sales__FactSalesLine_MDM__dbt_tmp__dbt_tmp_vw')
 
 
 
@@ -266,12 +250,12 @@ EXEC('
     if EXISTS (
         SELECT *
         FROM sys.indexes with (nolock)
-        WHERE name = 'dbt_prod_intermediate_int_sales__FactSalesLine_Deposco__dbt_tmp_cci'
-        AND object_id=object_id('dbt_prod_intermediate_int_sales__FactSalesLine_Deposco__dbt_tmp')
+        WHERE name = 'dbt_prod_intermediate_int_sales__FactSalesLine_MDM__dbt_tmp_cci'
+        AND object_id=object_id('dbt_prod_intermediate_int_sales__FactSalesLine_MDM__dbt_tmp')
     )
-    DROP index "dbt_prod_intermediate"."int_sales__FactSalesLine_Deposco__dbt_tmp".dbt_prod_intermediate_int_sales__FactSalesLine_Deposco__dbt_tmp_cci
-    CREATE CLUSTERED COLUMNSTORE INDEX dbt_prod_intermediate_int_sales__FactSalesLine_Deposco__dbt_tmp_cci
-    ON "dbt_prod_intermediate"."int_sales__FactSalesLine_Deposco__dbt_tmp"
+    DROP index "dbt_prod_intermediate"."int_sales__FactSalesLine_MDM__dbt_tmp".dbt_prod_intermediate_int_sales__FactSalesLine_MDM__dbt_tmp_cci
+    CREATE CLUSTERED COLUMNSTORE INDEX dbt_prod_intermediate_int_sales__FactSalesLine_MDM__dbt_tmp_cci
+    ON "dbt_prod_intermediate"."int_sales__FactSalesLine_MDM__dbt_tmp"
 
    
 

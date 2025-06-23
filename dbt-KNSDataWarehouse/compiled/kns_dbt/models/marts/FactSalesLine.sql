@@ -8,10 +8,10 @@ returns_accruals as (
   select * from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__FactSalesLine_ReturnsAccruals"
 ),
 
-deposco as (
+mdm as (
     select 
         *
-    from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__FactSalesLine_Deposco" 
+    from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__FactSalesLine_MDM" 
 ),
 
 unioned as (
@@ -38,7 +38,7 @@ unioned as (
         cast(DiscountAmount as decimal(19, 4)) as DiscountAmount,
         cast(RecordUpdatedAt as datetime) as RecordUpdatedAt,
         cast(Season as nvarchar(32)) as Season 
-    from deposco
+    from mdm
     union all
     select 
         cast(Number as nvarchar(200)) as Number,

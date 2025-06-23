@@ -21,7 +21,7 @@ trading_partner as (
     select
         TradingPartnerId,
         Name
-    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner"
+    from "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartner"
 ),
 
 price_list as (
@@ -61,7 +61,7 @@ sales as (
         cast(Amount as decimal(18,2)) / nullif(Quantity,0) as SalesPrice,
         Quantity,
         PlacedDate
-    from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__FactSalesLine_Deposco"
+    from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__FactSalesLine_MDM"
 ),
 
 final as (

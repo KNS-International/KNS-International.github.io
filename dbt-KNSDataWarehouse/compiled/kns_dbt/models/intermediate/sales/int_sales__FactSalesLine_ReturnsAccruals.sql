@@ -5,7 +5,7 @@ source as (
     select 
         cast(concat('Returns Accrual/', tl.UniqueKey) as nvarchar(255)) as Number,
         171516 as ItemId,
-        tp.TradingPartnerId as TradingPartnerId,
+        tp.TradingPartnerId,
         'Discontinued' as Brand,
         null as LastUpdatedAt,
         0 as Amount,

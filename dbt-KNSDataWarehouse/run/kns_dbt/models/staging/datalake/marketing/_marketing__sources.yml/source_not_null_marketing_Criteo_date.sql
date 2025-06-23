@@ -6,7 +6,7 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_4076e86cff11be8e01d4544550de379c]
+    [dbt_test__audit.testview_5a7d30ad14b5c8e244766e51fdda149e]
    as 
     
     
@@ -28,12 +28,12 @@ where date is null
   from (
     select  * from 
 
-    [dbt_test__audit.testview_4076e86cff11be8e01d4544550de379c]
+    [dbt_test__audit.testview_5a7d30ad14b5c8e244766e51fdda149e]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_4076e86cff11be8e01d4544550de379c]
+    [dbt_test__audit.testview_5a7d30ad14b5c8e244766e51fdda149e]
   ;')

@@ -8,35 +8,46 @@ day_start as (
 ),
 
 order_header as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader"
+    select 
+        OrderHeaderId,
+        ShippingStatus,
+        CurrentStatus,
+        CreatedDate,
+        Type
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader"
 ),
 
 order_line as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine"
+    select 
+        OrderLineId,
+        OrderHeaderId,
+        ItemId,
+        PackId,
+        OrderPackQuantity
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine"
 ),
 
 pack as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Pack"
-),
-
-stock_unit as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__StockUnit"
-),
-
-stock_unit_audit_history as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__StockUnitAuditHistory"
+    select 
+        PackId,
+        Quantity
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Pack"
 ),
 
 item as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Item"
+    select 
+        ItemId,
+        IntangibleItemFlag,
+        ClassType
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Item"
 ),
 
 ordered as (
     select
         ol.ItemId,
-        coalesce(sum(ol.OrderPackQuantity * p2.Quantity), 0) as TotalOrdered
+        coalesce(sum(ol.OrderPackQuantity * p.Quantity), 0) as TotalOrdered
     from order_line ol
-    join pack p2 on ol.PackId = p2.PackId
+    join pack p on ol.PackId = p.PackId
     join order_header oh on ol.OrderHeaderId = oh.OrderHeaderId
     where oh.ShippingStatus != 20
         and oh.CurrentStatus not in ('Hold', 'Canceled', 'Voided')
@@ -47,9 +58,9 @@ ordered as (
 ),
 
 stock_unit_unioned as (
-    select * from stock_unit
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__StockUnit"
     union all
-    select * from stock_unit_audit_history
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__StockUnitAuditHistory"
 ),
 
 current_stock as (
@@ -64,6 +75,8 @@ current_stock as (
     from stock_unit_unioned s
     join item i on s.ItemId = i.ItemId
     join pack p on s.PackId = p.PackId
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Location" l on s.LocationId = l.LocationId
+    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__LocationZones" lz on l.LocationId = lz.LocationId
     left join ordered o on o.ItemId = s.ItemId
     cross join day_start                      
     where i.IntangibleItemFlag = 0
