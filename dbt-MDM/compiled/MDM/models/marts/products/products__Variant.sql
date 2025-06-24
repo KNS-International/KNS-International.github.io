@@ -39,6 +39,10 @@ supplies as (
         and CompanyId = 73
 ),
 
+sizes as (
+    select * from "KNSUnifiedMDM"."prod"."int_products__Size"
+),
+
 variants as (
     select 
         MainSku as Number,
@@ -80,10 +84,10 @@ variants as (
 
 variant_deduped as (
     select 
-        Number,
+        v.Number,
         null as Code,
         s.StyleId,
-        null as SizeId,
+        sz.SizeId,
         v.Status,
         v.SellingStatus,
         v.ShoeWidth,
@@ -109,6 +113,8 @@ variant_deduped as (
     from variants v
     left join styles s
     on v.Style = s.Name
+    left join sizes sz
+    on v.Number = sz.Number
     where rn = 1
 ),
 

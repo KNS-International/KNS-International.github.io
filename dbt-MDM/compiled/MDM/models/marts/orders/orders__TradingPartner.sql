@@ -1,6 +1,7 @@
 
 
 select 
+  TradingPartnerId,
   Name,
   FulfillmentChannelType,
   FinancialChannelType,
