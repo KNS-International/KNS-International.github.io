@@ -30,6 +30,10 @@ catalog as (
     select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Catalog"
 ),
 
+size as (
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Size"
+),
+
 product as (
     select
         v.Number,
@@ -65,13 +69,14 @@ product as (
         s.Season,
         s.CaseQuantity,
         s.SeasonBudget,
-        null as Size,
+        sz.Name as Size,
         b.Name as Brand,
         b.Division
     from variants v
     left join styles s on v.StyleId = s.StyleId
     left join catalog c on s.CatalogId = c.CatalogId
     left join brands b on c.BrandId = b.BrandId
+    left join size sz on v.SizeId = sz.SizeId
 ),
 
 final as (
