@@ -5,7 +5,7 @@
 
 
 select TradingPartnerId
-from "KNSDevDbt"."dbt_prod_marts"."DimTradingPartner"
+from "KNSDataWarehouse"."Deposco"."DimTradingPartner"
 where TradingPartnerId is null
 
 

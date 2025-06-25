@@ -2,7 +2,9 @@
   
 
 
-with line_disposition as (
+with 
+
+line_disposition as (
     select
         oh.OrderHeaderId as OrderHeaderId,
         case
@@ -18,7 +20,7 @@ with line_disposition as (
         end as LineDisposition,
         tp.TradingPartnerId as TradingPartnerId
     from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh
-    join "KNSDevDbt"."dbt_prod_marts"."DimTradingPartner" tp on tp.TradingPartnerId = oh.ConsigneePartnerId
+    join "KNSDataWarehouse"."Deposco"."DimTradingPartner" tp on tp.TradingPartnerId = oh.ConsigneePartnerId
     left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__CoHeader" ch on ch.CoHeaderId = oh.CoHeaderId
     join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol on ol.OrderHeaderId = oh.OrderHeaderId
     left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__CoLine" cl on cl.CoLineId = ol.CoLineId
@@ -46,7 +48,7 @@ grouped as (
             else 'Open'
         end as OrderDisposition
 	from line_disposition ld
-    join "KNSDevDbt"."dbt_prod_marts"."DimTradingPartner" tp on tp.TradingPartnerId = ld.TradingPartnerId
+    join "KNSDataWarehouse"."Deposco"."DimTradingPartner" tp on tp.TradingPartnerId = ld.TradingPartnerId
     group by ld.OrderHeaderId
 ),
 
@@ -97,7 +99,7 @@ final as (
     from grouped g 
     join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh 
     on oh.OrderHeaderId = g.OrderHeaderId
-    join "KNSDevDbt"."dbt_prod_marts"."DimTradingPartner" tp
+    join "KNSDataWarehouse"."Deposco"."DimTradingPartner" tp
     on tp.TradingPartnerId = oh.ConsigneePartnerId
 )
 

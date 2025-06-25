@@ -9,9 +9,7 @@ returns_accruals as (
 ),
 
 mdm as (
-    select 
-        *
-    from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__FactSalesLine_MDM" 
+    select * from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__FactSalesLine_MDM" 
 ),
 
 unioned as (

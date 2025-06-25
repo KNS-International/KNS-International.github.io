@@ -7,40 +7,106 @@ USE [KNSDevDbt];
     
     USE [KNSDevDbt];
     EXEC('
-        create view "dbt_prod_intermediate"."int_sales__DimItemPrep__dbt_tmp" as with historical as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_kns__HistoricalDimItem"
+        create view "dbt_prod_intermediate"."int_sales__DimItemPrep__dbt_tmp" as with 
+
+historical as (
+    select 
+        ItemId,
+        Category,
+        Subcategory,
+        FirstReceivedDate,
+        CloseOut,
+        CloseOutDate,
+        ToeStyle,
+        HeelType,
+        LiquidationCloseOut,
+        SoftCloseOut,
+        MasterCategory
+    from "KNSDevDbt"."dbt_prod_staging"."stg_kns__HistoricalDimItem"
 ),
 
 item as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Item"
+    select 
+        ItemId,
+        [Number],
+        ClassType,
+        UpdatedDate 
+    from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Item"
 ),
 
 item_cogs as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__KnsItemCogs"
+    select 
+        ItemId,
+        Cost
+    from "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__KnsItemCogs"
 ),
 
 variants as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Variant"
+    select 
+        VariantId,
+        Number,
+        Status,
+        ShoeWidth,
+        CalfWidth,
+        Parent,
+        ClosureType,
+        HeelType,
+        StyleType,
+        SizeRun,
+        ColorName,
+        ColorClass,
+        IsAnaplanActive,
+        SellOutTargetAt,
+        PlannedArrivalAt,
+        FirstSalesDateAt,
+        MSRP,
+        IsSupplies,
+        IsIntangible,
+        DirectSourcingModel,
+        SellingStatus,
+        DtcWebsiteColor,
+        StyleId,
+        SizeId,
+        Subclass,
+        VendorSku
+    from "KNSDevDbt"."dbt_prod_staging"."stg_products__Variant"
 ),
 
 styles as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Style"
+    select 
+        StyleId,
+        CatalogId,
+        Name,
+        Class,
+        Vendor,
+        Gender,
+        Season,
+        CaseQuantity,
+        SeasonBudget
+    from "KNSDevDbt"."dbt_prod_staging"."stg_products__Style"
 ),
 
 brands as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Brand"
-),
-
-subclasses as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Subclass"
+    select 
+        BrandId,
+        Name,
+        Division
+    from "KNSDevDbt"."dbt_prod_staging"."stg_products__Brand"
 ),
 
 catalog as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Catalog"
+    select 
+        CatalogId,
+        Name,
+        BrandId
+    from "KNSDevDbt"."dbt_prod_staging"."stg_products__Catalog"
 ),
 
 size as (
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Size"
+    select 
+        SizeId,
+        Name
+    from "KNSDevDbt"."dbt_prod_staging"."stg_products__Size"
 ),
 
 product as (
