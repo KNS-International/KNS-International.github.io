@@ -40,7 +40,6 @@ pld_grouped as (
     select
         i.ItemId,
         i.Number as SKU,
-        tp.Name as TradingPartnerName,
         pl.TradingPartnerId,
         pld.SalesPrice as CurrentPLDPrice,
         pld.SalesEffectiveStart as PriceStartAt,
@@ -61,6 +60,8 @@ sales as (
         ItemId,
         TradingPartnerId,
         PlacedDate,
+        Amount,
+        Quantity,
         row_number() over (
             partition by ItemId, TradingPartnerId 
             order by PlacedDate desc
@@ -75,7 +76,9 @@ latest_sales as (
         Number,
         ItemId,
         TradingPartnerId,
-        PlacedDate
+        PlacedDate,
+        Amount,
+        Quantity
     from sales
     where rn = 1
 ),
@@ -85,11 +88,13 @@ pld_sales_joined as (
         s.Number as FactSalesLineNumber,
         pld.ItemId,
         pld.SKU,
-        pld.TradingPartnerName,
+        pld.TradingPartnerId,
         pld.CurrentPLDPrice,
         pld.PriceStartAt,
         pld.PriceListDetailId,
-        s.PlacedDate
+        s.PlacedDate,
+        pld.CurrentPLDPrice - (s.Amount / nullif(s.Quantity, 0)) as PriceDifference,
+        (s.Amount / nullif(s.Quantity, 0)) as SOPrice
     from pld_grouped pld
     left join latest_sales s 
         on pld.ItemId = s.ItemId
@@ -101,9 +106,12 @@ final as (
         pld.FactSalesLineNumber,
         pld.ItemId,
         pld.SKU,
-        pld.TradingPartnerName,
+        pld.TradingPartnerId,
         pld.CurrentPLDPrice,
+        pld.SOPrice,
+        pld.PriceDifference,
         pld.PriceStartAt,
+        pld.PlacedDate as SOPlacedAt,
         case
             when pld.PlacedDate < pld.PriceStartAt or pld.FactSalesLineNumber is null
                 then 'No'

@@ -6,11 +6,18 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_e12b0e1e6f0b2b136d63f4207903d64e]
+    [dbt_test__audit.testview_b64865f4cf6c5919f81319a45e209946]
    as 
-    select *
-    from "KNSDevDbt"."dbt_prod_staging"."stg_kns__FreightForwarder_DSV"
-    where EstimatedUSPortAt = ''1900-01-01''
+    
+    
+
+
+
+select Number
+from "KNSDataWarehouse"."Deposco"."DimItem"
+where Number is null
+
+
 ;')
   select
     count(*) as failures,
@@ -21,12 +28,12 @@
   from (
     select  * from 
 
-    [dbt_test__audit.testview_e12b0e1e6f0b2b136d63f4207903d64e]
+    [dbt_test__audit.testview_b64865f4cf6c5919f81319a45e209946]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_e12b0e1e6f0b2b136d63f4207903d64e]
+    [dbt_test__audit.testview_b64865f4cf6c5919f81319a45e209946]
   ;')
