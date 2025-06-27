@@ -45,83 +45,88 @@ sizes as (
 
 variants as (
     select 
-        MainSku as Number,
-        null as Code,
-        Status,
-        SellingStatus,
-        ShoeWidth,
-        CalfWidth,
-        ParentSku as Parent,
-        ClosureType,
-        HeelHeight as HeelType,
-        StyleType,
-        SizeRun,
-        Color as ColorName,
-        ColorClass,
-        MerchandiseSubclass as Subclass,
-        VendorSku,
-        AnaplanActive as IsAnaplanActive,
-        case 
-            when SellOutTargetDateYear is not null and SellOutTargetDateMonth is not null
-            then datefromparts(SellOutTargetDateYear, SellOutTargetDateMonth, 1)
-            else null
-        end as SellOutTargetAt,
-        PlannedArrivalDateMonth as PlannedArrivalAt,
-        FirstSalesDateAt,
-        MSRP,
-        0 as IsSupplies,
-        i.IsIntangible as IsIntangible,
-        DirectSourcingModel,
-        Style,
-        DtcWebsiteColor as DtcWebsiteColor,
-        row_number() over (partition by MainSku order by (select null)) as rn
-    from "KNSUnifiedMDM"."prod"."stg_salsify__Product" p
-    left join "KNSUnifiedMDM"."prod"."stg_deposco__Item" i
-    on p.MainSku = i.Number
-    where MainSku is not null
-        and MainSku != ''
-),
-
-variant_deduped as (
-    select 
-        v.Number,
+        p.MainSku as Number,
         null as Code,
         s.StyleId,
         sz.SizeId,
-        v.Status,
-        v.SellingStatus,
-        v.ShoeWidth,
-        v.CalfWidth,
-        v.Parent,
-        v.ClosureType,
-        v.HeelType,
-        v.StyleType,
-        v.SizeRun,
-        v.ColorName,
-        v.ColorClass,
-        v.Subclass,
-        v.VendorSku,
-        v.IsAnaplanActive,
-        v.SellOutTargetAt,
-        v.PlannedArrivalAt,
-        v.FirstSalesDateAt,
-        v.MSRP,
-        v.IsSupplies,
-        v.IsIntangible,
-        v.DirectSourcingModel,
-        v.DtcWebsiteColor
-    from variants v
+        p.Status,
+        p.SellingStatus,
+        p.ShoeWidth,
+        p.CalfWidth,
+        p.ParentSku as Parent,
+        p.ClosureType,
+        p.HeelHeight as HeelType,
+        p.StyleType,
+        p.SizeRun,
+        p.Color as ColorName,
+        p.ColorClass,
+        p.MerchandiseSubclass as Subclass,
+        p.VendorSku,
+        p.AnaplanActive as IsAnaplanActive,
+        case 
+            when p.SellOutTargetDateYear is not null and p.SellOutTargetDateMonth is not null
+            then datefromparts(p.SellOutTargetDateYear, p.SellOutTargetDateMonth, 1)
+            else null
+        end as SellOutTargetAt,
+        p.PlannedArrivalDateMonth as PlannedArrivalAt,
+        p.FirstSalesDateAt,
+        p.MSRP,
+        0 as IsSupplies,
+        i.IsIntangible as IsIntangible,
+        p.DirectSourcingModel,
+        p.DtcWebsiteColor as DtcWebsiteColor
+        -- row_number() over (partition by MainSku order by (select null)) as rn
+    from "KNSUnifiedMDM"."prod"."stg_salsify__Product" p
+    left join "KNSUnifiedMDM"."prod"."stg_deposco__Item" i
+    on p.MainSku = i.Number
     left join styles s
-    on v.Style = s.Name
+    on p.Style = s.Name
     left join sizes sz
-    on v.Number = sz.Number
-    where rn = 1
+    on p.MainSku = sz.Number
+    -- where MainSku is not null
+    --     and MainSku != ''
 ),
+
+-- variant_deduped as (
+--     select 
+--         v.Number,
+--         null as Code,
+--         s.StyleId,
+--         sz.SizeId,
+--         v.Status,
+--         v.SellingStatus,
+--         v.ShoeWidth,
+--         v.CalfWidth,
+--         v.Parent,
+--         v.ClosureType,
+--         v.HeelType,
+--         v.StyleType,
+--         v.SizeRun,
+--         v.ColorName,
+--         v.ColorClass,
+--         v.Subclass,
+--         v.VendorSku,
+--         v.IsAnaplanActive,
+--         v.SellOutTargetAt,
+--         v.PlannedArrivalAt,
+--         v.FirstSalesDateAt,
+--         v.MSRP,
+--         v.IsSupplies,
+--         v.IsIntangible,
+--         v.DirectSourcingModel,
+--         v.DtcWebsiteColor
+--     from variants v
+--     left join styles s
+--     on v.Style = s.Name
+--     left join sizes sz
+--     on v.Number = sz.Number
+--     where rn = 1
+-- ),
 
 unioned as (
     select * from supplies
     union all
-    select * from variant_deduped
+    select * from variants
 ),
 
 final as (

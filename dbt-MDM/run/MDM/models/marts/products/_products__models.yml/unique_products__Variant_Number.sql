@@ -6,16 +6,19 @@
   USE [KNSUnifiedMDM];
   EXEC('create view 
 
-    [dbt_test__audit.testview_38f45f2b46ec454c7dad8c6e035b6137]
+    [dbt_test__audit.testview_8e96c134c9e19194ce6c72998f78dbfe]
    as 
     
     
 
+select
+    Number as unique_field,
+    count(*) as n_records
 
-
-select FinancialChannelType
-from "KNSUnifiedMDM"."Orders"."TradingPartner"
-where FinancialChannelType is null
+from "KNSUnifiedMDM"."Products"."Variant"
+where Number is not null
+group by Number
+having count(*) > 1
 
 
 ;')
@@ -28,12 +31,12 @@ where FinancialChannelType is null
   from (
     select  * from 
 
-    [dbt_test__audit.testview_38f45f2b46ec454c7dad8c6e035b6137]
+    [dbt_test__audit.testview_8e96c134c9e19194ce6c72998f78dbfe]
   
   ) dbt_internal_test;
 
   USE [KNSUnifiedMDM];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_38f45f2b46ec454c7dad8c6e035b6137]
+    [dbt_test__audit.testview_8e96c134c9e19194ce6c72998f78dbfe]
   ;')
