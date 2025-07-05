@@ -6,7 +6,7 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_e18c39632f74817b305c51899f7bf368]
+    [dbt_test__audit.testview_955860edbed3f7a31749331177a35a21]
    as 
     
     
@@ -28,12 +28,12 @@ where FactSalesLineNumber is null
   from (
     select  * from 
 
-    [dbt_test__audit.testview_e18c39632f74817b305c51899f7bf368]
+    [dbt_test__audit.testview_955860edbed3f7a31749331177a35a21]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_e18c39632f74817b305c51899f7bf368]
+    [dbt_test__audit.testview_955860edbed3f7a31749331177a35a21]
   ;')

@@ -6,7 +6,7 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_4b99cccb68afad78471201cd75279e28]
+    [dbt_test__audit.testview_862e0fb579cade99b0b9d99ab55cb4d5]
    as 
     select *
     from "KNSDevDbt"."dbt_prod_staging"."stg_kns__FreightForwarder_SFI"
@@ -21,12 +21,12 @@
   from (
     select  * from 
 
-    [dbt_test__audit.testview_4b99cccb68afad78471201cd75279e28]
+    [dbt_test__audit.testview_862e0fb579cade99b0b9d99ab55cb4d5]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_4b99cccb68afad78471201cd75279e28]
+    [dbt_test__audit.testview_862e0fb579cade99b0b9d99ab55cb4d5]
   ;')
