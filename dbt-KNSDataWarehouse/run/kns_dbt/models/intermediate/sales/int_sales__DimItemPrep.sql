@@ -64,7 +64,6 @@ variants as (
         IsIntangible,
         DirectSourcingModel,
         SellingStatus,
-        DtcWebsiteColor,
         StyleId,
         SizeId,
         Subclass,
@@ -132,7 +131,6 @@ product as (
         v.IsIntangible,
         v.DirectSourcingModel,
         v.SellingStatus,
-        v.DtcWebsiteColor,
         s.Name as Style,
         c.Name as Catalog,
         c.BrandId,
@@ -218,8 +216,7 @@ final as (
         end as BrandId,
         p.SeasonBudget,
         p.SellingStatus,
-        p.DirectSourcingModel,
-        p.DtcWebsiteColor
+        p.DirectSourcingModel
     from product p 
     left join item i on p.Number = i.[Number]
     left join historical h on h.ItemId = i.ItemId
