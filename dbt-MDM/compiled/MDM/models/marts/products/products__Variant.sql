@@ -32,8 +32,7 @@ supplies as (
         null as MSRP, 
         1 as IsSupplies, 
         0 as IsIntangible, 
-        null as DirectSourcingModel,
-        null as DtcWebsiteColor
+        null as DirectSourcingModel
     from "KNSUnifiedMDM"."prod"."stg_deposco__Item" i
     where IsSupplies like '%suppl%'
         and CompanyId = 73
@@ -58,7 +57,7 @@ variants as (
         p.HeelHeight as HeelType,
         p.StyleType,
         p.SizeRun,
-        p.Color as ColorName,
+        nullif(p.DtcWebsiteColor, '') as ColorName,
         p.ColorClass,
         p.MerchandiseSubclass as Subclass,
         p.VendorSku,
@@ -73,8 +72,7 @@ variants as (
         p.MSRP,
         0 as IsSupplies,
         i.IsIntangible as IsIntangible,
-        p.DirectSourcingModel,
-        p.DtcWebsiteColor as DtcWebsiteColor
+        p.DirectSourcingModel
         -- row_number() over (partition by MainSku order by (select null)) as rn
     from "KNSUnifiedMDM"."prod"."stg_salsify__Product" p
     left join "KNSUnifiedMDM"."prod"."stg_deposco__Item" i
@@ -155,8 +153,7 @@ final as (
         MSRP,
         IsSupplies,
         IsIntangible,
-        DirectSourcingModel,
-        DtcWebsiteColor
+        DirectSourcingModel
     from unioned
 )
 
