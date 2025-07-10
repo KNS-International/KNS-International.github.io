@@ -24,7 +24,14 @@ cleaned as (
         cast(expenseaccount as bigint) as ExpenseAccount,
         cast(debitforeignamount as float) as DebitForeignAmount,
         cast(creditforeignamount as float) as CreditForeignAmount,
-        cast(memo as nvarchar(4000)) as Memo
+        cast(memo as nvarchar(4000)) as Memo,
+        cast(entity as bigint) as Entity,
+        cast(cseg_kns_brand_2024 as bigint) as CsegKnsBrand2024,
+        cast(cseg_kns_productcat as bigint) as CsegKnsProductCat,
+        cast(cseg_kns_prod_subcl as bigint) as CsegKnsProdSubcl,
+        cast(quantity as float) as Quantity,
+        cast(item as bigint) as Item,
+        cast(netamount as float) as NetAmount
     from source
 
 )
