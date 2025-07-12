@@ -44,7 +44,7 @@ final as (
     select 
         n.MonthEndAt,
         tp.TradingPartnerId,
-        n.Catalog,
+        c.BrandId,
         n.Class,
         n.Subclass,
         round((sum(n.Gross) - sum(n.NetDeductions)) / 
@@ -54,6 +54,8 @@ final as (
     on n.Partner = tp.Name
         or (tp.Code = 'FV' and n.PartnerId = 755)
 	    or (tp.Code = 'FT' and n.PartnerId = 1497) 
+	left join "KNSDevDbt"."dbt_prod_staging"."stg_products__Catalog" c 
+	on n.Catalog = c.Name
     where Catalog is not null
     and Class is not null
     and Subclass is not null
@@ -61,7 +63,7 @@ final as (
     group by 
         n.MonthEndAt,
         tp.TradingPartnerId,
-        n.Catalog,
+        c.BrandId,
         n.Class,
         n.Subclass
     having sum(n.Gross) > 0
