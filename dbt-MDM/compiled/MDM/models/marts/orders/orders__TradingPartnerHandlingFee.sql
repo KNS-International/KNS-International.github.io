@@ -2,30 +2,15 @@
 
 
 
-
-with ids as (
-    select
-        Name,
-        TradingPartnerId
-    from "KNSUnifiedMDM"."Orders"."TradingPartner"
-),
+with
 
 info as (
     select
         Name,
+        TradingPartnerId,
         HandlingFee,
         HandlingFeeType
     from "KNSUnifiedMDM"."prod"."stg_deposco__TradingPartner"
-),
-
-joined as (
-    select
-        ids.TradingPartnerId,
-        info.HandlingFeeType,
-        info.HandlingFee
-    from ids 
-    left join info
-    on ids.Name = info.Name
 ),
 
 latest as (
@@ -35,17 +20,17 @@ latest as (
 
 new as (
     select
-        j.TradingPartnerId,
+        i.TradingPartnerId,
         cast(getdate() as date) as StartDate,
         null as EndDate,
-        j.HandlingFeeType,
-        j.HandlingFee
-    from joined j
+        i.HandlingFeeType,
+        i.HandlingFee
+    from info i
     left join latest l
-    on j.TradingPartnerId = l.TradingPartnerId
+    on i.TradingPartnerId = l.TradingPartnerId
     where l.TradingPartnerId is null 
-        or j.HandlingFee != l.HandlingFee
-        or l.HandlingFeeType != j.HandlingFeeType
+        or i.HandlingFee != l.HandlingFee
+        or i.HandlingFeeType != l.HandlingFeeType
 ),
 
 expired as (
@@ -56,11 +41,11 @@ expired as (
         l.HandlingFeeType,
         l.HandlingFee
     from latest l
-    left join joined j
-    on l.TradingPartnerId = j.TradingPartnerId
-    where j.TradingPartnerId is null 
-        or j.HandlingFee != l.HandlingFee
-        or j.HandlingFeeType != l.HandlingFeeType
+    left join info i
+    on l.TradingPartnerId = i.TradingPartnerId
+    where i.TradingPartnerId is null 
+        or i.HandlingFee != l.HandlingFee
+        or i.HandlingFeeType != l.HandlingFeeType
 ),
 
 final as (
