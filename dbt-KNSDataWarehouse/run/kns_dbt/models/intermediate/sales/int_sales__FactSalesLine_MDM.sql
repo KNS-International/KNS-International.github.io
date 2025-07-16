@@ -62,6 +62,7 @@ order_protection_item as (
         ,204261
         ,204262
         ,212170
+        ,216852
     )
 ),
 
@@ -224,7 +225,7 @@ final as (
         LineStatus,
         FreightOutCOGS,
         ItemCOGS,
-        HandlingFee,
+        coalesce(HandlingFee, 0) as HandlingFee,
         DiscountAmount,
         RecordUpdatedAt,
         Season
