@@ -73,7 +73,6 @@ variants as (
         0 as IsSupplies,
         i.IsIntangible as IsIntangible,
         p.DirectSourcingModel
-        -- row_number() over (partition by MainSku order by (select null)) as rn
     from "KNSUnifiedMDM"."prod"."stg_salsify__Product" p
     left join "KNSUnifiedMDM"."prod"."stg_deposco__Item" i
     on p.MainSku = i.Number
@@ -81,45 +80,7 @@ variants as (
     on p.Style = s.Name
     left join sizes sz
     on p.MainSku = sz.Number
-    -- where MainSku is not null
-    --     and MainSku != ''
 ),
-
--- variant_deduped as (
---     select 
---         v.Number,
---         null as Code,
---         s.StyleId,
---         sz.SizeId,
---         v.Status,
---         v.SellingStatus,
---         v.ShoeWidth,
---         v.CalfWidth,
---         v.Parent,
---         v.ClosureType,
---         v.HeelType,
---         v.StyleType,
---         v.SizeRun,
---         v.ColorName,
---         v.ColorClass,
---         v.Subclass,
---         v.VendorSku,
---         v.IsAnaplanActive,
---         v.SellOutTargetAt,
---         v.PlannedArrivalAt,
---         v.FirstSalesDateAt,
---         v.MSRP,
---         v.IsSupplies,
---         v.IsIntangible,
---         v.DirectSourcingModel,
---         v.DtcWebsiteColor
---     from variants v
---     left join styles s
---     on v.Style = s.Name
---     left join sizes sz
---     on v.Number = sz.Number
---     where rn = 1
--- ),
 
 unioned as (
     select * from supplies
