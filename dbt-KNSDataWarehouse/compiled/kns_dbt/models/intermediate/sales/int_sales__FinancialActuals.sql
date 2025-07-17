@@ -64,7 +64,6 @@ final as (
         c.BrandId,
         n.Class,
         n.Subclass
-    having sum(n.Gross) > 0
 )
 
 select * from final

@@ -22,6 +22,7 @@ filters as (
         Amount
     from "KNSDevDbt"."dbt_prod_staging"."stg_orders__BudgetForecast"
     where AccountNumber in (''4000'', ''4050'', ''4100'', ''4101'', ''4102'', ''4103'', ''4104'', ''4105'', ''4106'', ''5000'', ''5100'', ''5200'')
+    or AccountName = ''Units''
 ),
 
 new_columns as (

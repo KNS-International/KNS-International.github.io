@@ -13,7 +13,7 @@ budget_subclass as (
     sum(iif(bud.IsGrossSales = 1, bud.DailyAmount, 0)) as Gross,
     sum(iif(bud.IsNetAdj = 1, bud.DailyAmount, 0)) as NetAdj,
     (sum(iif(bud.IsGrossSales = 1, bud.DailyAmount, 0)) - sum(iif(bud.IsNetAdj = 1, bud.DailyAmount, 0))) / 
-    sum(iif(bud.IsGrossSales = 1, bud.DailyAmount, 0)) as GrossToNetPercentage
+    sum(nullif(iif(bud.IsGrossSales = 1, bud.DailyAmount, 0), 0)) as GrossToNetPercentage
   from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__BudgetForecast" bud
   where bud.Identifier = 'Budget'
   group by bud.BrandId, bud.TradingPartnerId, bud.Class, bud.Subclass, bud.MonthEndDate
@@ -26,7 +26,7 @@ budget_class as (
 		BrandId,
 		TradingPartnerId,
 		Class,
-		(sum(Gross) - sum(NetAdj)) / sum(Gross) as GrossToNetPercentage
+		(sum(Gross) - sum(NetAdj)) / nullif(sum(Gross), 0) as GrossToNetPercentage
   from budget_subclass
   group by MonthEndDate, BrandId, TradingPartnerId, Class
 ),
@@ -36,7 +36,7 @@ budget_tradingpartner as (
     MonthEndDate,
 		BrandId,
 		TradingPartnerId,
-		(sum(Gross) - sum(NetAdj)) / sum(Gross) as GrossToNetPercentage
+		(sum(Gross) - sum(NetAdj)) / nullif(sum(Gross), 0) as GrossToNetPercentage
   from budget_subclass
   group by MonthEndDate, BrandId, TradingPartnerId
 ),
@@ -45,7 +45,7 @@ budget_brand as (
   select
     MonthEndDate,
 		BrandId,
-		(sum(Gross) - sum(NetAdj)) / sum(Gross) as GrossToNetPercentage
+		(sum(Gross) - sum(NetAdj)) / nullif(sum(Gross), 0) as GrossToNetPercentage
   from budget_subclass
   group by MonthEndDate, BrandId
 ),
@@ -69,7 +69,7 @@ actuals_class as (
 		BrandId,
 		TradingPartnerId,
 		Class,
-		(sum(GrossSales) - suM(NetComponents)) / sum(GrossSales) as GrossToNetPercentage
+		(sum(GrossSales) - suM(NetComponents)) / nullif(sum(GrossSales), 0) as GrossToNetPercentage
 	from actuals_subclass
 	group by MonthEndAt, BrandId, TradingPartnerId, Class
 ),
@@ -79,7 +79,7 @@ actuals_tradingpartner as (
 		MonthEndAt,
 		BrandId,
 		TradingPartnerId,
-		(sum(GrossSales) - suM(NetComponents)) / sum(GrossSales) as GrossToNetPercentage
+		(sum(GrossSales) - suM(NetComponents)) / nullif(sum(GrossSales), 0) as GrossToNetPercentage
 	from actuals_subclass
 	group by MonthEndAt, BrandId, TradingPartnerId
 ),
