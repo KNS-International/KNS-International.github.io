@@ -29,7 +29,14 @@ sfi as (
 
 po_master_file as (
 
-    select * from "KNSDevDbt"."dbt_prod_staging"."stg_kns__FreightForwarder_POMasterFile"
+    select 
+        [Number],
+        FreightForwarder,
+        VesselLoadedAt,
+        EstimatedUSPortAt,
+        EstimatedUSStartShipAt,
+        EstimatedArrivalAt
+    from "KNSDevDbt"."dbt_prod_staging"."stg_kns__POMasterFile"
     group by [Number], FreightForwarder, VesselLoadedAt, EstimatedUSPortAt, EstimatedUSStartShipAt, EstimatedArrivalAt
 
 ),

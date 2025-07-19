@@ -31,7 +31,11 @@ cleaned as (
         cast(cseg_kns_prod_subcl as bigint) as CsegKnsProdSubcl,
         cast(quantity as float) as Quantity,
         cast(item as bigint) as Item,
-        cast(netamount as float) as NetAmount
+        cast(netamount as float) as NetAmount,
+        cast(isclosed as nvarchar(2)) as IsClosed,
+        cast(quantityshiprecv as float) as QuantityShipRecv,
+        cast(createdfrom as bigint) as CreatedFrom,
+        cast(quantityonshipments as float) as QuantityOnShipments
     from source
 
 )
