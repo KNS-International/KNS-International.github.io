@@ -6,16 +6,19 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_d966553dd2c3b70690c1840d914eefe1]
+    [dbt_test__audit.testview_8a35c0842e6529b9c95741599c81190d]
    as 
     
     
 
+select
+    Number as unique_field,
+    count(*) as n_records
 
-
-select OrderDisposition
-from "KNSDataWarehouse"."KNS"."FactOTIF"
-where OrderDisposition is null
+from "KNSDataWarehouse"."KNS"."FactSalesLine"
+where Number is not null
+group by Number
+having count(*) > 1
 
 
 ;')
@@ -28,12 +31,12 @@ where OrderDisposition is null
   from (
     select  * from 
 
-    [dbt_test__audit.testview_d966553dd2c3b70690c1840d914eefe1]
+    [dbt_test__audit.testview_8a35c0842e6529b9c95741599c81190d]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_d966553dd2c3b70690c1840d914eefe1]
+    [dbt_test__audit.testview_8a35c0842e6529b9c95741599c81190d]
   ;')

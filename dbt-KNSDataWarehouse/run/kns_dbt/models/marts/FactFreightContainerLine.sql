@@ -27,7 +27,8 @@ shipments as (
         si.QuantityExpected as ExpectedQuantity,
         si.QuantityReceived as ReceivedQuantity,
         i.ExternalId as Item,
-        s.VesselNumber as Container
+        s.VesselNumber as Container,
+        si.ShipmentItemTransactionId as TransactionLineId
     from "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__InboundShipment" s 
     left join "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__InboundShipmentItem" si 
         on s.Id = si.InboundShipmentId
@@ -44,6 +45,7 @@ final as (
         s.FreightContainerLineId,
         s.Container,
         s.PONumber,
+        s.TransactionLineId,
         s.ActualXFAt,
         s.DepartureAt,
         s.ExpectedInDCAt,

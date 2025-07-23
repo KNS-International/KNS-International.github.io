@@ -105,7 +105,7 @@ pld_sales_joined as (
         pld.PriceStartAt,
         pld.PriceListDetailId,
         s.PlacedDate,
-        pld.CurrentPLDPrice - (s.Amount / nullif(s.Quantity, 0)) as PriceDifference,
+        (s.Amount / nullif(s.Quantity, 0)) - pld.CurrentPLDPrice as PriceDifference,
         (s.Amount / nullif(s.Quantity, 0)) as SOPrice
     from pld_grouped pld
     left join latest_sales s 

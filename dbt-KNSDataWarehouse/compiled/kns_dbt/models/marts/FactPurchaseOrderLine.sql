@@ -35,6 +35,7 @@ netsuite as (
 		on i.Id = tl.Item
 	where t.Type='PurchOrd'
 	and t.DueDate is not null
+	and t.DueDate >= datefromparts(year(getdate()) - 1, 1, 1)
 ),
 
 po_lines as (
