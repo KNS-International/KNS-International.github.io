@@ -11,7 +11,7 @@ shipments as (
         s.ActualShippingDate as DepartureAt,
         cast(t.CustBodyKnsActualXFact as date) as ActualXFAt,
         s.ActualDeliveryDate as ActualInDCAt,
-        s.ExpectedDeliveryDate as ExpectedInDcAt,
+        coalesce(s.ExpectedDeliveryDate, t.DueDate) as ExpectedInDcAt,
         si.QuantityExpected as ExpectedQuantity,
         si.QuantityReceived as ReceivedQuantity,
         i.ExternalId as Item,
@@ -39,6 +39,7 @@ final as (
         s.ExpectedInDCAt,
         s.ActualInDCAt,
         s.ExpectedQuantity,
+        s.ExpectedQuantity - s.ReceivedQuantity as RemainingQuantity,
         s.ReceivedQuantity,
         i.ItemId
     from shipments s
