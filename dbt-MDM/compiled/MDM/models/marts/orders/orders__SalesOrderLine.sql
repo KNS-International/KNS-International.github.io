@@ -116,3 +116,4 @@ final as (
 )
 
 select * from final
+where ItemId != 216975 -- Temporary exlude of test item in deposco
