@@ -30,7 +30,8 @@ netsuite as (
                 or ts.Name = ''Closed''
                 then 0
             else 1
-        end as IsOpen
+        end as IsOpen,
+		t.TranDate as TransactionDate
 	from "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__Transaction" t
 	join "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__TransactionLine" tl 
 		on tl.[Transaction] = t.Id
@@ -58,7 +59,8 @@ po_lines as (
 		n.TransactionLineId,
         n.Rate,
         n.Season,
-        IsOpen
+        IsOpen,
+		n.TransactionDate
 	from netsuite n
 	join "KNSDataWarehouse"."Deposco"."DimItem" i 
 		on i.Number = n.Item

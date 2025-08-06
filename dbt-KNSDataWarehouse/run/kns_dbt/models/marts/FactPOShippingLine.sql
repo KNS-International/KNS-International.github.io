@@ -31,7 +31,8 @@ po_lines as (
         QuantityOnShipments as POQuantityOnShipments,
         Rate,
         Season,
-        IsOpen
+        IsOpen,
+        TransactionDate
     from "KNSDevDbt"."dbt_prod_intermediate"."int_sales__PurchaseOrderLine"
 ),
 
@@ -81,13 +82,24 @@ final as (
                 then ''At Warehouse Not Received''
             else ''Past Receive Date''
         end as ReceiveByDateGrouping,
+        case 
+            when f.ActualInDCAt is not null or f.ReceivedQuantity > 0
+                then cast(1 as bit)
+            else cast(0 as bit)
+        end as IsArrived,
+        case 
+            when f.ActualInDCAt is not null 
+                 and datediff(day, f.ActualInDCAt, getdate()) between 0 and 14
+                then cast(1 as bit)
+            else cast(0 as bit)
+        end as IsRecentlyReceived,
         p.Rate,
         p.Season,
         p.IsOpen
     from po_lines p
     left join freight_container_lines f
         on p.TransactionLineId = f.TransactionLineId
-    where p.IsOpen = 1
+    where p.TransactionDate >= datefromparts(year(getdate()) - 1, 1, 1)
 )
 
 select * from final;
