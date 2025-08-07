@@ -184,7 +184,7 @@ final as (
         p.Anaplan,
         h.SoftCloseOut,
         ic.cost as Cost,
-        p.Style,
+        coalesce(nullif(p.Style, ''''), ''*No Style*'') as Style,
         h.MasterCategory,
         p.Class,
         p.Subclass,
