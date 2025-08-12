@@ -70,7 +70,7 @@ net_invoices as (
         i.externalid
 ),
 
-final as (
+sales as (
 
     select
         cast(ol.SourceId as nvarchar(200)) as SourceId,
@@ -113,8 +113,12 @@ final as (
     on ih.InvoiceHeaderId = n.InvoiceId and v.Number = n.ItemNumber
     where oh.CurrentStatus not in ('Void', 'Voided')
     
+),
+
+final as (select s.* from sales s
+left join "KNSUnifiedMDM"."prod"."stg_deposco__Component" c
+on s.ItemId = c.ItemId
+where c.ComponentId is null
 )
 
 select * from final
-where ItemId != 216975 -- Temporary exlude of test item in deposco
-and ItemId !=  217538 -- Temporary exlude of test item in deposco
