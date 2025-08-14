@@ -68,7 +68,7 @@ final as (
     select
         *
     from unioned
-    where PlacedDate >= datefromparts(year(getdate()) - 2, 1, 1)
+    where PlacedDate >= datefromparts(year(getdate()) - 3, 1, 1)
 )
 
 select * from final
