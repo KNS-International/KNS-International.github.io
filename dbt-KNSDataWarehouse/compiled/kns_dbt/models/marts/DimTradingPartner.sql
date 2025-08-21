@@ -10,7 +10,7 @@ trading_partners as (
         TradingPartnerId,
         Name,
         Code,
-        FulfillmentChannelType as ChannelType
+        FinancialChannelType as ChannelType
     from "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartner"
 
 ),

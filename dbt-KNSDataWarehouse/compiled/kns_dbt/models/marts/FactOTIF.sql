@@ -10,17 +10,17 @@ line_disposition as (
         case
             when ol.OrderLineStatus = 'Canceled' or oh.CurrentStatus = 'Canceled' then 'Canceled'
             when (oh.KnsMtActualReleaseDate is not null 
-                    and tp.ChannelType = 'Wholesale')
+                    and tp.FulfillmentChannelType = 'Wholesale')
                 or (oh.ShippingStatus = 20 
                     and oh.KnsMtActualShipDate is not null 
-                    and  tp.ChannelType != 'Wholesale') 
+                    and  tp.FulfillmentChannelType != 'Wholesale') 
                 then 'Complete'
             when oh.CurrentStatus in ('New', 'Back Ordered', 'Released', 'Complete', 'Picking', 'Hold', 'Waiting For Rollback') then 'Open'
             else 'Unknown'
         end as LineDisposition,
         tp.TradingPartnerId as TradingPartnerId
     from "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh
-    join "KNSDataWarehouse"."Deposco"."DimTradingPartner" tp on tp.TradingPartnerId = oh.ConsigneePartnerId
+    join "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartner" tp on tp.TradingPartnerId = oh.ConsigneePartnerId
     left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__CoHeader" ch on ch.CoHeaderId = oh.CoHeaderId
     join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol on ol.OrderHeaderId = oh.OrderHeaderId
     left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__CoLine" cl on cl.CoLineId = ol.CoLineId
@@ -48,7 +48,7 @@ grouped as (
             else 'Open'
         end as OrderDisposition
 	from line_disposition ld
-    join "KNSDataWarehouse"."Deposco"."DimTradingPartner" tp on tp.TradingPartnerId = ld.TradingPartnerId
+    join "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartner" tp on tp.TradingPartnerId = ld.TradingPartnerId
     group by ld.OrderHeaderId
 ),
 
@@ -57,7 +57,7 @@ final as (
         g.OrderHeaderId as OrderHeaderId,
         g.OrderDisposition,
         case
-            when tp.ChannelType != 'Wholesale' then
+            when tp.FulfillmentChannelType != 'Wholesale' then
                 dateadd(minute,
                     case
                         when oh.IsExpress = 1 then 14*60
@@ -72,11 +72,11 @@ final as (
                 ) 
         end as TargetCompletionAt,
         case
-            when tp.ChannelType != 'Wholesale' then oh.KnsMtActualShipDate
+            when tp.FulfillmentChannelType != 'Wholesale' then oh.KnsMtActualShipDate
             else oh.KnsMtActualReleaseDate
         end as ActualCompletionAt,
         case
-            when tp.ChannelType != 'Wholesale' then
+            when tp.FulfillmentChannelType != 'Wholesale' then
                 datediff(minute,
                     dateadd(minute,
                         case
@@ -99,7 +99,7 @@ final as (
     from grouped g 
     join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh 
     on oh.OrderHeaderId = g.OrderHeaderId
-    join "KNSDataWarehouse"."Deposco"."DimTradingPartner" tp
+    join "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartner" tp
     on tp.TradingPartnerId = oh.ConsigneePartnerId
 )
 
