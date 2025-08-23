@@ -45,6 +45,7 @@ po_lines as (
 		n.ActualXFAt,
 		n.Quantity,
         n.QuantityOnShipments,
+		n.Quantity - n.QuantityOnShipments as RemainingQuantityNotOnShipments,
 		i.ItemId as ItemId,
 		n.TransactionId,
 		n.TransactionLineId,
