@@ -1,7 +1,7 @@
 with 
 
 brands as (
-    select * from "KNSDevDbt"."prod"."seed_Brands"
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Brand"
 ),
 
 marketing_data as (
@@ -35,7 +35,7 @@ final as (
 
     from marketing_data m
     left join brands b 
-        on b.Brand = m.BrandMapping
+        on b.Name = m.BrandMapping
     where TradingPartnerId is not null
 )
 

@@ -4,21 +4,46 @@ sources as (
     select * from "KNSDevDbt"."dbt_prod_intermediate"."int_marketing__SourcesUnioned"
 ),
 
--- THIS IS WHERE WE WILL JOIN THE MAPPING TABLE AND FILL IN EMPTY VALUES
+old_names as (
+  select 
+    OldCampaignName,
+    NewCampaignName 
+  from "KNSDevDbt"."dbt_prod_staging"."stg_marketing__CampaignMap"
+),
+
+new_names as (
+  select 
+    Date,
+    AdName,
+    AdSet,
+    case
+      when o.NewCampaignName is not null then o.NewCampaignName
+      else s.Campaign
+    end as Campaign,
+    TradingPartnerId,
+    Platform,
+    Channel,
+    Type,
+    Brand,
+    Spend,
+    ClickThrough,
+    Impressions,
+    Conversions,
+    SalesDollars,
+    SalesUnits
+  from sources s
+  left join old_names o
+    on s.Campaign = o.OldCampaignName
+),
 
 -- Step 1: Extract the first token from Campaign (up to the first space, or the whole Campaign)
 base_campaign as (
-
-    select 
-        *,
-        case 
-            when charindex(' ', Campaign) > 0 
-                then left(Campaign, charindex(' ', Campaign) - 1)
-            else Campaign
-        end as FirstSegment
-    from sources
-
+  select 
+    *,
+    ltrim(rtrim(Campaign)) as FirstSegment  -- keep the whole thing, just trim whitespace
+  from new_names
 ),
+
 
 -- Step 2: Count the number of periods in FirstSegment
 campaign_with_count as (

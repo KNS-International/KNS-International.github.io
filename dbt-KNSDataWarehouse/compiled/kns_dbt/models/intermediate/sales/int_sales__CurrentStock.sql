@@ -65,25 +65,25 @@ stock_unit_unioned as (
 
 current_stock as (
     select
-        s.ItemId,
+        i.ItemId,
         coalesce(sum(s.Quantity * p.Quantity), 0) as Quantity,
         case 
             when coalesce(sum(s.Quantity * p.Quantity), 0) - coalesce(o.TotalOrdered, 0) < 0
                 then 0
             else coalesce(sum(s.Quantity * p.Quantity), 0) - coalesce(o.TotalOrdered, 0)
         end as AvailableQuantity
-    from stock_unit_unioned s
-    join item i on s.ItemId = i.ItemId
-    join pack p on s.PackId = p.PackId
-    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Location" l on s.LocationId = l.LocationId
-    join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__LocationZones" lz on l.LocationId = lz.LocationId
-    left join ordered o on o.ItemId = s.ItemId
-    cross join day_start                      
-    where i.IntangibleItemFlag = 0
-      and s.PeriodStart <= day_start.day_start
-      and s.PeriodEnd >= day_start.day_start
+    from item i
+    cross join day_start ds
+    left join stock_unit_unioned s on s.ItemId = i.ItemId
+       and s.PeriodStart <= ds.day_start
+       and s.PeriodEnd   >= ds.day_start
+    left join pack p on s.PackId = p.PackId
+    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Location" l on s.LocationId = l.LocationId
+    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__LocationZones" lz on l.LocationId = lz.LocationId
+    left join ordered o on o.ItemId = i.ItemId
+    where i.IntangibleItemFlag != 1
       and coalesce(i.ClassType, '') != 'Supplies'
-    group by s.ItemId, o.TotalOrdered
+    group by i.ItemId, o.TotalOrdered
 )
 
 select * from current_stock
