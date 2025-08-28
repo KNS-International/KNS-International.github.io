@@ -8,7 +8,7 @@ with all_values as (
         Objective as value_field,
         count(*) as n_records
 
-    from "KNSDevDbt"."dbt_prod_marts"."FactMarketingAd"
+    from "KNSDataWarehouse"."KNS"."FactMarketingAd"
     group by Objective
 
 )

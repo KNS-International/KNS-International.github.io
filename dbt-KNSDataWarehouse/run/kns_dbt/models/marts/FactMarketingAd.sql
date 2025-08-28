@@ -1,16 +1,20 @@
 
   
-    USE [KNSDevDbt];
-    USE [KNSDevDbt];
+    USE [KNSDataWarehouse];
+    USE [KNSDataWarehouse];
     
     
 
     
 
     
-    USE [KNSDevDbt];
+    USE [KNSDataWarehouse];
     EXEC('
-        create view "dbt_prod_marts"."FactMarketingAd__dbt_tmp__dbt_tmp_vw" as with 
+        create view "KNS"."FactMarketingAd__dbt_tmp__dbt_tmp_vw" as 
+  
+
+
+with 
 
 brands as (
     select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Brand"
@@ -55,27 +59,27 @@ select * from final;;
     ')
 
 EXEC('
-            SELECT * INTO "KNSDevDbt"."dbt_prod_marts"."FactMarketingAd__dbt_tmp" FROM "KNSDevDbt"."dbt_prod_marts"."FactMarketingAd__dbt_tmp__dbt_tmp_vw" 
+            SELECT * INTO "KNSDataWarehouse"."KNS"."FactMarketingAd__dbt_tmp" FROM "KNSDataWarehouse"."KNS"."FactMarketingAd__dbt_tmp__dbt_tmp_vw" 
     OPTION (LABEL = ''dbt-sqlserver'');
 
         ')
 
     
-    EXEC('DROP VIEW IF EXISTS dbt_prod_marts.FactMarketingAd__dbt_tmp__dbt_tmp_vw')
+    EXEC('DROP VIEW IF EXISTS KNS.FactMarketingAd__dbt_tmp__dbt_tmp_vw')
 
 
 
     
-    use [KNSDevDbt];
+    use [KNSDataWarehouse];
     if EXISTS (
         SELECT *
         FROM sys.indexes with (nolock)
-        WHERE name = 'dbt_prod_marts_FactMarketingAd__dbt_tmp_cci'
-        AND object_id=object_id('dbt_prod_marts_FactMarketingAd__dbt_tmp')
+        WHERE name = 'KNS_FactMarketingAd__dbt_tmp_cci'
+        AND object_id=object_id('KNS_FactMarketingAd__dbt_tmp')
     )
-    DROP index "dbt_prod_marts"."FactMarketingAd__dbt_tmp".dbt_prod_marts_FactMarketingAd__dbt_tmp_cci
-    CREATE CLUSTERED COLUMNSTORE INDEX dbt_prod_marts_FactMarketingAd__dbt_tmp_cci
-    ON "dbt_prod_marts"."FactMarketingAd__dbt_tmp"
+    DROP index "KNS"."FactMarketingAd__dbt_tmp".KNS_FactMarketingAd__dbt_tmp_cci
+    CREATE CLUSTERED COLUMNSTORE INDEX KNS_FactMarketingAd__dbt_tmp_cci
+    ON "KNS"."FactMarketingAd__dbt_tmp"
 
    
 

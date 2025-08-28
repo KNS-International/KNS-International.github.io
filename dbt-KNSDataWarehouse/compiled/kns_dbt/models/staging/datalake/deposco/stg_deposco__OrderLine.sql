@@ -18,7 +18,9 @@ cleaned as (
         cast(CO_LINE_ID as bigint) as CoLineId,
         cast(SHIPPED_PACK_QUANTITY as float) as ShippedPackQuantity,
         cast(UNIT_COST as float) as UnitCost,
-        cast(UPDATED_DATE as datetime) as UpdatedDate
+        cast(UPDATED_DATE as datetime) as UpdatedDate,
+        cast(CUSTOMER_LINE_NUMBER as varchar(100)) as CustomerLineNumber,
+        cast(RECEIVED_PACK_QUANTITY as float) as ReceivedPackQuantity
     from source
 
 )

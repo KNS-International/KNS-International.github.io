@@ -77,12 +77,6 @@ joined as (
                 then cast(1 as bit)
             else cast(0 as bit)
         end as IsArrived,
-        case 
-            when f.ActualInDCAt is not null 
-                 and datediff(day, f.ActualInDCAt, getdate()) between 0 and 14
-                then cast(1 as bit)
-            else cast(0 as bit)
-        end as IsRecentlyReceived,
         p.Rate,
         p.Season,
         p.IsOpen
@@ -114,7 +108,6 @@ unassigned as (
         cast(0 as decimal(18,4)) as ReceivedQuantity,
         cast(p.RemainingQuantityNotOnShipments as decimal(18,4)) as RemainingQuantity,
         cast(0 as bit) as IsArrived,
-        cast(0 as bit) as IsRecentlyReceived,
         p.Rate,
         p.Season,
         p.IsOpen
@@ -167,7 +160,6 @@ final as (
             else ''Past Receive Date''
         end as ReceiveByDateGrouping,
         IsArrived,
-        IsRecentlyReceived,
         Rate,
         Season,
         IsOpen

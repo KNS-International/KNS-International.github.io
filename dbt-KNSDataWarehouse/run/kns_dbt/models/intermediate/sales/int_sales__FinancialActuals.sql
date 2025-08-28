@@ -21,7 +21,7 @@ netsuite as (
 		iif(a.acctnumber in (''4100'', ''4101'', ''4102'', ''4103'', ''4104'', ''4105'', ''4106''), coalesce(tl.rate * tl.Quantity, tl.NetAmount), 0) as NetDeductions,
 		case
 			when t.TranDate < ''2025-07-01'' 
-				then iif(a.acctnumber in (''5000'', ''5200''), coalesce(tl.rate * tl.Quantity, tl.NetAmount), 0)
+				then iif(a.acctnumber in (''5000''), coalesce(tl.rate * tl.Quantity, tl.NetAmount), 0)
 			else iif(a.acctnumber = ''5000'', coalesce(tl.rate * tl.Quantity, tl.NetAmount), 0)
 		end as ProductCogs
 	from "KNSDevDbt"."dbt_prod_staging"."stg_netsuite__Transaction" t
@@ -46,7 +46,7 @@ netsuite as (
 		iif(a.acctnumber in (''4100'', ''4101'', ''4102'', ''4103'', ''4104'', ''4105'', ''4106''), coalesce(tl.rate * tl.Quantity, tl.NetAmount), 0),
 		case
 			when t.TranDate < ''2025-07-01'' 
-				then iif(a.acctnumber in (''5000'', ''5200''), coalesce(tl.rate * tl.Quantity, tl.NetAmount), 0)
+				then iif(a.acctnumber in (''5000''), coalesce(tl.rate * tl.Quantity, tl.NetAmount), 0)
 			else iif(a.acctnumber = ''5000'', coalesce(tl.rate * tl.Quantity, tl.NetAmount), 0)
 		end,
 		t.id,
@@ -70,7 +70,7 @@ final as (
     from netsuite n
     left join "KNSDataWarehouse"."Deposco"."DimTradingPartner" tp
     on n.Partner = tp.Name
-        or (tp.Code = ''FV'' and n.PartnerId = 755)
+        or (tp.Code = ''FV'' and n.PartnerId = 755) 
 	    or (tp.Code = ''FT'' and n.PartnerId = 1497) 
 	left join "KNSDevDbt"."dbt_prod_staging"."stg_products__Catalog" c 
 	on n.Catalog = c.Name

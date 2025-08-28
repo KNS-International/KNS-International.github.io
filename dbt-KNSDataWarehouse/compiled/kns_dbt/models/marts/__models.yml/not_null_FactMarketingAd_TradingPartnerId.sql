@@ -5,7 +5,7 @@
 
 
 select TradingPartnerId
-from "KNSDevDbt"."dbt_prod_marts"."FactMarketingAd"
+from "KNSDataWarehouse"."KNS"."FactMarketingAd"
 where TradingPartnerId is null
 
 

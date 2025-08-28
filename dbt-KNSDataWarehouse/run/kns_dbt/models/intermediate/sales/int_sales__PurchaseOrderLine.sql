@@ -28,6 +28,7 @@ netsuite as (
             when tl.Quantity - tl.QuantityShipRecv = 0 
                 or tl.IsClosed = ''T''
                 or ts.Name = ''Closed''
+				or ts.Name = ''Fully Billed''
                 then 0
             else 1
         end as IsOpen,

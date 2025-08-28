@@ -9,7 +9,7 @@ shipments as (
         s.ActualDeliveryDate as ActualInDCAt,
         coalesce(s.ExpectedDeliveryDate, t.DueDate) as ExpectedInDcAt,
         si.QuantityExpected as ExpectedQuantity,
-        si.QuantityReceived as ReceivedQuantity,
+        --si.QuantityReceived as ReceivedQuantity,
         i.ExternalId as Item,
         s.VesselNumber as Container,
         si.ShipmentItemTransactionId as TransactionLineId
@@ -24,6 +24,22 @@ shipments as (
         on tl.Item = i.Id
 ),
 
+received as (
+    select 
+        s.FreightContainerLineId,
+        sum(ol.ReceivedPackQuantity*p.Quantity) as ReceivedQuantity
+    from shipments s
+    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderLine" ol 
+        on s.FreightContainerLineId = ol.CustomerLineNumber
+    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__OrderHeader" oh 
+        on ol.OrderHeaderId = oh.OrderHeaderId
+    left join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__Pack" p 
+        on ol.PackId = p.PackId
+    where oh.ShipVendor = 'InboundShipment'
+        and oh.CurrentStatus <> 'Voided'
+    group by s.FreightContainerLineId
+),
+
 final as (
     select 
         s.FreightContainerLineId,
@@ -35,12 +51,14 @@ final as (
         s.ExpectedInDCAt,
         s.ActualInDCAt,
         s.ExpectedQuantity,
-        s.ExpectedQuantity - s.ReceivedQuantity as RemainingQuantity,
-        s.ReceivedQuantity,
+        s.ExpectedQuantity - coalesce(r.ReceivedQuantity, 0) as RemainingQuantity,
+        coalesce(r.ReceivedQuantity, 0) as ReceivedQuantity,
         i.ItemId
     from shipments s
     left join "KNSDataWarehouse"."Deposco"."DimItem" i
         on s.Item = i.Number
+    left join received r
+        on s.FreightContainerLineId = r.FreightContainerLineId
 )
 
 select * from final

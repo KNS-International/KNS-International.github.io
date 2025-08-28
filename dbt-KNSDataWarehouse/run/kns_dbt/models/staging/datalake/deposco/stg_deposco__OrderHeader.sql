@@ -35,6 +35,7 @@ cleaned as (
         cast(KNS_MT_PLANNED_SHIP_DATE as datetime) as KnsMtPlannedShipDate,
         cast(KNS_MT_ACTUAL_SHIP_DATE as	datetime) as KnsMtActualShipDate,
         cast(KNS_MT_ACTUAL_RELEASE_DATE as datetime) as KnsMtActualReleaseDate,
+        cast(SHIP_VENDOR as varchar(50)) as ShipVendor,
         cast(CO_HEADER_ID as bigint) as CoHeaderId,
         cast(
         case 

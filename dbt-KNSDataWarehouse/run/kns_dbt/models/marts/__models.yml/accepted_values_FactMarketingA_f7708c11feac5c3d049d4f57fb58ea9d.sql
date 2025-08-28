@@ -6,7 +6,7 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_a9e21e83cd84ac495bea1dff9dc284ef]
+    [dbt_test__audit.testview_27a3c56875cc5f26b1029991d6a92782]
    as 
     
     
@@ -17,7 +17,7 @@ with all_values as (
         Objective as value_field,
         count(*) as n_records
 
-    from "KNSDevDbt"."dbt_prod_marts"."FactMarketingAd"
+    from "KNSDataWarehouse"."KNS"."FactMarketingAd"
     group by Objective
 
 )
@@ -39,12 +39,12 @@ where value_field not in (
   from (
     select  * from 
 
-    [dbt_test__audit.testview_a9e21e83cd84ac495bea1dff9dc284ef]
+    [dbt_test__audit.testview_27a3c56875cc5f26b1029991d6a92782]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_a9e21e83cd84ac495bea1dff9dc284ef]
+    [dbt_test__audit.testview_27a3c56875cc5f26b1029991d6a92782]
   ;')
