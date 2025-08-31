@@ -1,16 +1,20 @@
 
   
-    USE [KNSDevDbt];
-    USE [KNSDevDbt];
+    USE [KNSDataWarehouse];
+    USE [KNSDataWarehouse];
     
     
 
     
 
     
-    USE [KNSDevDbt];
+    USE [KNSDataWarehouse];
     EXEC('
-        create view "dbt_prod_marts"."POAggregate__dbt_tmp__dbt_tmp_vw" as with
+        create view "KNS"."POAggregate__dbt_tmp__dbt_tmp_vw" as 
+  
+
+
+with
 
 inventory_valuation as (
     select 
@@ -80,9 +84,9 @@ all_inventory_dates as (
 po_lines as (
     select 
         ItemId,
-        ReceiptDate,
-        Quantity 
-    from "KNSDevDbt"."dbt_prod_marts"."POLines"
+        ActualInDCAt as ReceiptDate,
+        ReceivedQuantity as Quantity 
+    from "KNSDataWarehouse"."KNS"."FactPOShippingLine"
 ),
 
 inventory_receipts as (
@@ -150,7 +154,7 @@ final as (
         case
             when iv.Quantity = 0 then 0
             else cast(iv.Valuation / cast(iv.Quantity as decimal(18, 2)) as decimal(18, 2))
-        end as UnitValue
+        end as [Unit Value]
     from final_with_dates f
     join inventory_valuation iv
         on iv.ItemId = f.ItemId
@@ -161,27 +165,27 @@ select * from final;
     ')
 
 EXEC('
-            SELECT * INTO "KNSDevDbt"."dbt_prod_marts"."POAggregate__dbt_tmp" FROM "KNSDevDbt"."dbt_prod_marts"."POAggregate__dbt_tmp__dbt_tmp_vw" 
+            SELECT * INTO "KNSDataWarehouse"."KNS"."POAggregate__dbt_tmp" FROM "KNSDataWarehouse"."KNS"."POAggregate__dbt_tmp__dbt_tmp_vw" 
     OPTION (LABEL = ''dbt-sqlserver'');
 
         ')
 
     
-    EXEC('DROP VIEW IF EXISTS dbt_prod_marts.POAggregate__dbt_tmp__dbt_tmp_vw')
+    EXEC('DROP VIEW IF EXISTS KNS.POAggregate__dbt_tmp__dbt_tmp_vw')
 
 
 
     
-    use [KNSDevDbt];
+    use [KNSDataWarehouse];
     if EXISTS (
         SELECT *
         FROM sys.indexes with (nolock)
-        WHERE name = 'dbt_prod_marts_POAggregate__dbt_tmp_cci'
-        AND object_id=object_id('dbt_prod_marts_POAggregate__dbt_tmp')
+        WHERE name = 'KNS_POAggregate__dbt_tmp_cci'
+        AND object_id=object_id('KNS_POAggregate__dbt_tmp')
     )
-    DROP index "dbt_prod_marts"."POAggregate__dbt_tmp".dbt_prod_marts_POAggregate__dbt_tmp_cci
-    CREATE CLUSTERED COLUMNSTORE INDEX dbt_prod_marts_POAggregate__dbt_tmp_cci
-    ON "dbt_prod_marts"."POAggregate__dbt_tmp"
+    DROP index "KNS"."POAggregate__dbt_tmp".KNS_POAggregate__dbt_tmp_cci
+    CREATE CLUSTERED COLUMNSTORE INDEX KNS_POAggregate__dbt_tmp_cci
+    ON "KNS"."POAggregate__dbt_tmp"
 
    
 

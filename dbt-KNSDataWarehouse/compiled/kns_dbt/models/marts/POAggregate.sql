@@ -1,3 +1,7 @@
+
+  
+
+
 with
 
 inventory_valuation as (
@@ -68,9 +72,9 @@ all_inventory_dates as (
 po_lines as (
     select 
         ItemId,
-        ReceiptDate,
-        Quantity 
-    from "KNSDevDbt"."dbt_prod_marts"."POLines"
+        ActualInDCAt as ReceiptDate,
+        ReceivedQuantity as Quantity 
+    from "KNSDataWarehouse"."KNS"."FactPOShippingLine"
 ),
 
 inventory_receipts as (
@@ -138,7 +142,7 @@ final as (
         case
             when iv.Quantity = 0 then 0
             else cast(iv.Valuation / cast(iv.Quantity as decimal(18, 2)) as decimal(18, 2))
-        end as UnitValue
+        end as [Unit Value]
     from final_with_dates f
     join inventory_valuation iv
         on iv.ItemId = f.ItemId

@@ -6,7 +6,7 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_ac517dfe0c6b1d6def7f2c383ccd3c9d]
+    [dbt_test__audit.testview_30ba6a957800f65bf25321f8d2ba9075]
    as 
     
     
@@ -31,12 +31,12 @@ having count(*) > 1
   from (
     select  * from 
 
-    [dbt_test__audit.testview_ac517dfe0c6b1d6def7f2c383ccd3c9d]
+    [dbt_test__audit.testview_30ba6a957800f65bf25321f8d2ba9075]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_ac517dfe0c6b1d6def7f2c383ccd3c9d]
+    [dbt_test__audit.testview_30ba6a957800f65bf25321f8d2ba9075]
   ;')
