@@ -32,7 +32,7 @@ ranked as (
         *,
         row_number() over (
             partition by Name 
-            order by (select null)
+            order by case when Class = ''OTHER'' then 1 else 0 end
         ) as rank
     from products
 
