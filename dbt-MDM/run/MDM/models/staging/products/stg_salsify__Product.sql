@@ -64,7 +64,7 @@ cleaned as (
         cast([Direct Sourcing Model] as nvarchar(64)) as DirectSourcingModel,
         cast([DTC Website Color] as nvarchar(64)) as DtcWebsiteColor
     from source
-    where nullif(trim([Parent SKU]), '''') is not null
+    -- where nullif(trim([Parent SKU]), '''') is not null
 
 )
 
