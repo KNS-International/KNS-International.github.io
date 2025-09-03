@@ -8,6 +8,10 @@ brands as (
     select * from "KNSDevDbt"."dbt_prod_staging"."stg_products__Brand"
 ),
 
+trading_partners as (
+    select * from "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartner"
+),
+
 marketing_data as (
 
     select * from "KNSDevDbt"."dbt_prod_intermediate"."int_marketing__SourcesMapped"
@@ -20,7 +24,7 @@ final as (
         m.[AdName],
         m.[AdSet],
         m.[Campaign],
-        m.TradingPartnerId,
+        coalesce(tp.TradingPartnerId, m.TradingPartnerId) as TradingPartnerId,
         m.[Platform],
         m.Channel,
         m.Type,
@@ -40,7 +44,9 @@ final as (
     from marketing_data m
     left join brands b 
         on b.Name = m.BrandMapping
-    where TradingPartnerId is not null
+    left join trading_partners tp
+        on tp.Code = m.TradingPartnerCode
 )
 
-select * from final;
+select * from final
+    where TradingPartnerId is not null;

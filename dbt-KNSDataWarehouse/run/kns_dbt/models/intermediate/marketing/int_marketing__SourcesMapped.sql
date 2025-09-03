@@ -84,7 +84,7 @@ campaign_xml as (
 parsed_campaign as (
 
     select 
-      Date, AdName, AdSet, Campaign, TradingPartnerId, Platform, Channel, Type,
+      Date, AdName, AdSet, Campaign, Brand, TradingPartnerId, Platform, Channel, Type,
       Spend, ClickThrough, Impressions, Conversions, SalesDollars, SalesUnits,
       XMLParts, PeriodCount, FirstSegment,
       XMLParts.value(''(/i)[1]'', ''varchar(100)'') as Part1,  -- Expecting the brand letter (J, T, V)
@@ -105,6 +105,7 @@ complete_parse as (
 
     select
       p.*,
+      iif(PeriodCount = 8, Part2, null) as TradingPartnerCode,
       -- Map the brand letter from Part1 to the full brand name; this will be used to join to dim_brand for BrandId
       case 
         when PeriodCount = 8 then 

@@ -31,7 +31,7 @@ northbeam as (
         ad_name as AdName,
         adset_name as AdSet,
         campaign_name as Campaign,
-        null as TradingPartnerId,
+        55 as TradingPartnerId,
         'Northbeam' as Platform,
         breakdown_platform_northbeam as Channel,
         null as Type,
@@ -45,7 +45,10 @@ northbeam as (
         attributed_rev as SalesDollars,
         null as SalesUnits
     from "KNSDevDbt"."dbt_prod_staging"."stg_marketing__Northbeam" 
-    where attribution_model = 'Clicks and views'
+    where attribution_model in (
+        'Clicks and views',
+        'Clicks + Modeled Views'
+        )
         and attribution_window = '7'
 ),
 
@@ -121,7 +124,7 @@ roundel as (
 
     select 
         Date,
-        'Roundel-Ad' as AdName,
+        'Roundel-Ad' as AdName, --Media Name
         'Roundel-Ad-Set' as AdSet,
         campaignName as Campaign,
         62 as TradingPartnerId,
