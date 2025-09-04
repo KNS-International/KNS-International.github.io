@@ -50,7 +50,7 @@ final as (
         cast(ClickThrough as decimal(19, 4)) as ClickThrough,
         cast(Impressions as decimal(19, 4)) as Impressions,
         cast(Conversions as decimal(19, 4)) as Conversions,
-        cast(SalesDollars as decimal(19, 4)) as SalesDollars,
+        cast(SalesDollars as decimal(19, 4)) as AttributedRevenue,
         cast(SalesUnits as decimal(19, 4)) as SalesUnits
 
     from marketing_data m
@@ -61,7 +61,9 @@ final as (
 )
 
 select * from final
-    where TradingPartnerId is not null;;
+    where TradingPartnerId is not null
+    and Date >= dateadd(year, -1, getdate())
+    and (Spend > 0 or AttributedRevenue > 0);;
     ')
 
 EXEC('
