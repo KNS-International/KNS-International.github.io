@@ -6,7 +6,7 @@
   USE [KNSUnifiedMDM];
   EXEC('create view 
 
-    [dbt_test__audit.testview_ca137a720f6b4677b14fb57b10faf03f]
+    [dbt_test__audit.testview_97d9a7c279ed8c4159fc0e62de9bfb7f]
    as 
     
     
@@ -28,12 +28,12 @@ where ProductVariantId is null
   from (
     select  * from 
 
-    [dbt_test__audit.testview_ca137a720f6b4677b14fb57b10faf03f]
+    [dbt_test__audit.testview_97d9a7c279ed8c4159fc0e62de9bfb7f]
   
   ) dbt_internal_test;
 
   USE [KNSUnifiedMDM];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_ca137a720f6b4677b14fb57b10faf03f]
+    [dbt_test__audit.testview_97d9a7c279ed8c4159fc0e62de9bfb7f]
   ;')
