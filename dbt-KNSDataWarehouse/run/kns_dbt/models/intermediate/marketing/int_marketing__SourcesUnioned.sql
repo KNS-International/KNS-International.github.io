@@ -40,7 +40,15 @@ northbeam as (
         ad_name as AdName,
         adset_name as AdSet,
         campaign_name as Campaign,
-        55 as TradingPartnerId,
+        case
+            when Instance = ''Journee'' 
+                then 35
+            when Instance = ''Taft'' 
+                then 64
+            when Instance = ''Birdies'' 
+                then 83
+            else 55
+        end as TradingPartnerId,
         ''Northbeam'' as Platform,
         breakdown_platform_northbeam as Channel,
         null as Type,
