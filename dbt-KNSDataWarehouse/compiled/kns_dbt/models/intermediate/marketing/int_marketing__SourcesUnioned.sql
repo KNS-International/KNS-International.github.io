@@ -21,7 +21,6 @@ criteo as (
     from "KNSDevDbt"."dbt_prod_staging"."stg_marketing__Criteo" c
     join "KNSDevDbt"."dbt_prod_staging"."stg_deposco__TradingPartner" tp
         on c.retailerName = tp.Name
-    where Spend > 0
 
 ),
 
@@ -43,7 +42,7 @@ northbeam as (
         'Northbeam' as Platform,
         breakdown_platform_northbeam as Channel,
         null as Type,
-        null as Brand,
+        Instance as Brand,
         Spend,
         --visits / nullif(imprs, 0) as ClickThrough, CHECK IF CTR MEANS WHAT IT ALSO MEANS IN CRITEO
         ctr as ClickThrough,
@@ -150,8 +149,30 @@ roundel as (
 
 ),
 
+epsilon as (
+    select 
+        Date,
+        'Epsilon-Ad' as AdName,
+        'Epsilon-Ad-Set' as AdSet,
+        CampaignName as Campaign,
+        8 as TradingPartnerId,
+        'Epsilon' as Platform,
+        null as Channel,
+        null as Type,
+        Brand as Brand,
+        Spend,
+        Clicks / NULLIF(Impressions, 0) as ClickThrough, --CHECK THIS LOGIC
+        Impressions,
+        Conversions,
+        SalesRevenue as SalesDollars,
+        UnitSales as SalesUnits
+    from "KNSDevDbt"."dbt_prod_staging"."stg_marketing__Epsilon" e 
+    join "KNSDevDbt"."dbt_prod_staging"."stg_marketing__Epsilon_Agg" ea
+        on e.CampaignId = ea.CampaignId
+),
+
 sources_unioned as (
-    select * from northbeam
+    select * from criteo
     union all
     select * from northbeam
     union all
@@ -162,6 +183,8 @@ sources_unioned as (
     select * from coop_campaign
     union all
     select * from roundel
+    union all
+    select * from epsilon
 )
 
 select * from sources_unioned;

@@ -107,6 +107,7 @@ complete_parse as (
               when 'B' then 'Birdies'
               else null
           end
+        when Brand is not null then Brand
         else null
       end as BrandMapping,
       -- Map Part3 to Objective using your defined codes
