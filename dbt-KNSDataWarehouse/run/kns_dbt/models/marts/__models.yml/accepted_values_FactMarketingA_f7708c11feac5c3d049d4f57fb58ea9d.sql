@@ -6,7 +6,7 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_92dc90ffa1b1161377093125f35bde28]
+    [dbt_test__audit.testview_b034959675dd1e18741bc0c5ba2ca7b6]
    as 
     
     
@@ -39,12 +39,12 @@ where value_field not in (
   from (
     select  * from 
 
-    [dbt_test__audit.testview_92dc90ffa1b1161377093125f35bde28]
+    [dbt_test__audit.testview_b034959675dd1e18741bc0c5ba2ca7b6]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_92dc90ffa1b1161377093125f35bde28]
+    [dbt_test__audit.testview_b034959675dd1e18741bc0c5ba2ca7b6]
   ;')
