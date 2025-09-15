@@ -6,7 +6,7 @@
   USE [KNSDevDbt];
   EXEC('create view 
 
-    [dbt_test__audit.testview_3145061406761346548e6c7c8c0f52ec]
+    [dbt_test__audit.testview_6c0ea9a779841bede4f308bc75c7920a]
    as 
     
     
@@ -28,12 +28,12 @@ where OrderDisposition is null
   from (
     select  * from 
 
-    [dbt_test__audit.testview_3145061406761346548e6c7c8c0f52ec]
+    [dbt_test__audit.testview_6c0ea9a779841bede4f308bc75c7920a]
   
   ) dbt_internal_test;
 
   USE [KNSDevDbt];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_3145061406761346548e6c7c8c0f52ec]
+    [dbt_test__audit.testview_6c0ea9a779841bede4f308bc75c7920a]
   ;')
