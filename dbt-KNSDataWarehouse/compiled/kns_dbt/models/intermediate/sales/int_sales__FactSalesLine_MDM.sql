@@ -106,6 +106,14 @@ trading_partner_handling_fee as (
     from "KNSDevDbt"."dbt_prod_staging"."stg_orders__TradingPartnerHandlingFee"
 ),
 
+total_shipped as (
+    select
+        SalesOrderId,
+        sum(QuantityShipped) as TotalShipped
+    from sales_order_line
+    group by SalesOrderId
+),
+
 joined as (
     select
         cast(concat(so.SourceSystem, '/', sol.SourceId) as nvarchar(255)) as Number,
@@ -147,7 +155,7 @@ joined as (
         sol.UnitItemCOGSAmount*sol.Quantity as ItemCOGS,
         case
             when tphf.HandlingFeeType = 'Order' 
-                then tphf.HandlingFee
+                then (sol.QuantityShipped / nullif(tsh.TotalShipped, 0))*tphf.HandlingFee
             when tphf.HandlingFeeType = 'Unit' 
                 then tphf.HandlingFee*sol.Quantity
             else null
@@ -162,6 +170,8 @@ joined as (
     from sales_order_line sol
     left join sales_order so
     on sol.SalesOrderId = so.SalesOrderId
+    left join total_shipped tsh
+    on sol.SalesOrderId = tsh.SalesOrderId
     left join trading_partner tp
     on so.TradingPartnerId = tp.TradingPartnerId
     left join trading_partner_handling_fee tphf
