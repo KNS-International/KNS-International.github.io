@@ -115,10 +115,21 @@ sales as (
     
 ),
 
-final as (select s.* from sales s
-left join "KNSUnifiedMDM"."prod"."stg_deposco__Component" c
-on s.ItemId = c.ItemId
-where c.ComponentId is null
+final as (
+    select 
+        s.SourceId,
+        s.SalesOrderId,
+        s.ProductVariantId,
+        s.ItemId,
+        coalesce(s.QuantityOrdered, 0) as QuantityOrdered,
+        coalesce(s.QuantityShipped, 0) as QuantityShipped,
+        coalesce(s.QuantityCanceled, 0) as QuantityCanceled,
+        s.UnitCostAmount,
+        s.UnitItemCOGSAmount 
+    from sales s
+    left join "KNSUnifiedMDM"."prod"."stg_deposco__Component" c
+    on s.ItemId = c.ItemId
+    where c.ComponentId is null
 )
 
 select * from final
