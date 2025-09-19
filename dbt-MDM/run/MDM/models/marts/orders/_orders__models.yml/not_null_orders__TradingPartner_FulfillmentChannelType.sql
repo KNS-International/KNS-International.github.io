@@ -6,7 +6,7 @@
   USE [KNSUnifiedMDM];
   EXEC('create view 
 
-    [dbt_test__audit.testview_a95971dd7f6d127d917c451d32436390]
+    [dbt_test__audit.testview_55beb1b857c716bd425bda35d494f981]
    as 
     
     
@@ -28,12 +28,12 @@ where FulfillmentChannelType is null
   from (
     select  * from 
 
-    [dbt_test__audit.testview_a95971dd7f6d127d917c451d32436390]
+    [dbt_test__audit.testview_55beb1b857c716bd425bda35d494f981]
   
   ) dbt_internal_test;
 
   USE [KNSUnifiedMDM];
   EXEC('drop view 
 
-    [dbt_test__audit.testview_a95971dd7f6d127d917c451d32436390]
+    [dbt_test__audit.testview_55beb1b857c716bd425bda35d494f981]
   ;')

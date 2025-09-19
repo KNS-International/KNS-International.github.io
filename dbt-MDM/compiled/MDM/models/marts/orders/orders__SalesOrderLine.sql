@@ -82,8 +82,8 @@ sales as (
             oh.ShippingStatus = 20,
             (ol.OrderPackQuantity * p.Quantity) - iif(
                     ol.OrderLineStatus in ('Canceled', 'Cancelled'),
-                    ol.OrderPackQuantity * p.Quantity,
-                    ol.CanceledPackQuantity * p.Quantity
+                    coalesce(ol.OrderPackQuantity * p.Quantity, 0),
+                    coalesce(ol.CanceledPackQuantity * p.Quantity, 0)
                 ),
             0
         ) as QuantityShipped,
