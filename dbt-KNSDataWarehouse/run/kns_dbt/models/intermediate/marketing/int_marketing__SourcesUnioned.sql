@@ -180,6 +180,29 @@ epsilon as (
         on e.CampaignId = ea.CampaignId
 ),
 
+amazon as (
+    select
+        Date,
+        ''Amazon-Ad'' as AdName,
+        ''Amazon-Ad-Set'' as AdSet,
+        CampaignName as Campaign,
+        case 
+            when Brand = ''Birdies'' then 89
+            else 39
+        end as TradingPartnerId,
+        ''Amazon'' as Platform,
+        null as Channel,
+        null as Type,
+        Brand as Brand,
+        Cost as Spend,
+        Clicks / NULLIF(Impressions, 0) as ClickThrough, --CHECK THIS LOGIC
+        Impressions,
+        null as Conversions,
+        Sales as SalesDollars,
+        null as SalesUnits
+    from "KNSDevDbt"."dbt_prod_staging"."stg_marketing__Amazon"
+),
+
 sources_unioned as (
     select * from criteo
     union all
@@ -194,6 +217,8 @@ sources_unioned as (
     select * from roundel
     union all
     select * from epsilon
+    union all
+    select * from amazon
 )
 
 select * from sources_unioned;;
